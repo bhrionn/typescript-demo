@@ -1,6 +1,24 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { AuthProvider } from './contexts';
+import { ToastProvider } from './components/common/Toast';
+import { ProtectedRoute, SessionExpirationHandler } from './components/auth';
+import { LoginPage, DashboardPage } from './pages';
+
+/**
+ * Material-UI theme configuration
+ */
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+});
 
 /**
  * Main Application Component
@@ -8,31 +26,34 @@ import { AuthProvider } from './contexts';
  */
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Default route - will be replaced with actual routes in later tasks */}
-          <Route path="/" element={<HomePage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
-  );
-};
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <ToastProvider>
+        <AuthProvider>
+          <BrowserRouter>
+            <SessionExpirationHandler>
+              <Routes>
+                {/* Public routes */}
+                <Route path="/login" element={<LoginPage />} />
 
-/**
- * Temporary Home Page Component
- * Will be replaced with actual implementation in later tasks
- */
-const HomePage: React.FC = () => {
-  return (
-    <div style={{ padding: '2rem', fontFamily: 'system-ui, sans-serif' }}>
-      <h1>TypeScript Demo Application</h1>
-      <p>React + TypeScript application with federated authentication</p>
-      <p>
-        <strong>Status:</strong> Project initialized successfully
-      </p>
-    </div>
+                {/* Protected routes */}
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardPage />
+                    </ProtectedRoute>
+                  }
+                />
+
+                {/* Catch all - redirect to home */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </SessionExpirationHandler>
+          </BrowserRouter>
+        </AuthProvider>
+      </ToastProvider>
+    </ThemeProvider>
   );
 };
 
