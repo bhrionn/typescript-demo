@@ -233,13 +233,13 @@
   - Create typed methods for each API endpoint
   - _Requirements: 2.2, 4.5_
 
-- [ ]\* 22.1 Write unit tests for API client
+- [x] 22.1 Write unit tests for API client
   - Write tests for request interceptor
   - Write tests for response interceptor
   - Write tests for retry logic
   - _Requirements: 2.2_
 
-- [ ] 23. Implement file upload service
+- [-] 23. Implement file upload service
   - Create IFileUploadService interface
   - Implement FileUploadService with file validation
   - Add file type validation (images, documents, max 50MB)
