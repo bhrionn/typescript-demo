@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
+    "type-check": "tsc --noEmit",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",

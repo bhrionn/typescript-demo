@@ -10,6 +10,7 @@
   "scripts": {
     "install:all": "npm install && npm install --workspace=web-app && npm install --workspace=api && npm install --workspace=infrastructure",
     "build": "npm run build --workspaces",
+    "type-check": "npm run type-check --workspaces",
     "test": "npm run test --workspaces",
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",

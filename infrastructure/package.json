@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
+    "type-check": "tsc --noEmit",
     "watch": "tsc -w",
     "test": "jest",
     "test:watch": "jest --watch",
