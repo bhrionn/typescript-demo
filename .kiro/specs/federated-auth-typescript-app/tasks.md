@@ -37,7 +37,7 @@
   - Configure VPC Flow Logs to CloudWatch
   - _Requirements: 3.4, 8.1_
 
-- [ ] 5. Implement SecurityStack for NACLs and Security Groups
+- [x] 5. Implement SecurityStack for NACLs and Security Groups
   - Create NACLs for public subnets (allow HTTP/HTTPS inbound, all outbound)
   - Create NACLs for application subnets (allow from public, deny direct internet)
   - Create NACLs for database subnets (allow from application tier only)

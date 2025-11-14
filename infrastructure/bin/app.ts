@@ -8,6 +8,7 @@ import {
   loadEnvironmentConfig,
 } from '../lib/config/environment';
 import { NetworkStack } from '../lib/stacks/network-stack';
+import { SecurityStack } from '../lib/stacks/security-stack';
 
 /**
  * CDK Application Entry Point
@@ -45,13 +46,18 @@ console.log(`Project: ${config.projectName}`);
 
 // Initialize stacks
 // NetworkStack provides VPC and subnet infrastructure
-new NetworkStack(app, 'NetworkStack', { config });
+const networkStack = new NetworkStack(app, 'NetworkStack', { config });
+
+// SecurityStack provides NACLs and Security Groups
+new SecurityStack(app, 'SecurityStack', {
+  config,
+  vpc: networkStack.vpc,
+  publicSubnets: networkStack.publicSubnets,
+  privateAppSubnets: networkStack.privateAppSubnets,
+  privateDatabaseSubnets: networkStack.privateDatabaseSubnets,
+});
 
 // Additional stacks will be added in subsequent tasks
-// Example:
-// const networkStack = new NetworkStack(app, 'NetworkStack', { config });
-// new SecurityStack(app, 'SecurityStack', { config, vpc: networkStack.vpc });
-// etc.
 
 // Synthesize the app
 app.synth();
