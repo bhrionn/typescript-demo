@@ -217,7 +217,7 @@
   - Create useAuth custom hook for components
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 4.1, 4.5_
 
-- [ ]\* 21.1 Write unit tests for authentication service
+- [x] 21.1 Write unit tests for authentication service
   - Write tests for login flow
   - Write tests for logout flow
   - Write tests for token refresh
