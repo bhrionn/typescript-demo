@@ -12,6 +12,7 @@ import { SecurityStack } from '../lib/stacks/security-stack';
 import { WafStack } from '../lib/stacks/waf-stack';
 import { CognitoStack } from '../lib/stacks/cognito-stack';
 import { StorageStack } from '../lib/stacks/storage-stack';
+import { ComputeStack } from '../lib/stacks/compute-stack';
 
 /**
  * CDK Application Entry Point
@@ -75,7 +76,7 @@ new WafStack(app, 'WafStack', {
 
 // CognitoStack provides user authentication with federated identity providers
 // Note: OAuth credentials should be provided via environment variables or context
-new CognitoStack(app, 'CognitoStack', {
+const cognitoStack = new CognitoStack(app, 'CognitoStack', {
   config,
   callbackUrls: app.node.tryGetContext('callbackUrls'),
   logoutUrls: app.node.tryGetContext('logoutUrls'),
@@ -86,11 +87,23 @@ new CognitoStack(app, 'CognitoStack', {
 });
 
 // StorageStack provides S3 buckets and RDS PostgreSQL database
-new StorageStack(app, 'StorageStack', {
+const storageStack = new StorageStack(app, 'StorageStack', {
   config,
   vpc: networkStack.vpc,
   privateDatabaseSubnets: networkStack.privateDatabaseSubnets,
   rdsSecurityGroup: securityStack.rdsSecurityGroup,
+});
+
+// ComputeStack provides Lambda functions for API and business logic
+new ComputeStack(app, 'ComputeStack', {
+  config,
+  vpc: networkStack.vpc,
+  privateAppSubnets: networkStack.privateAppSubnets,
+  lambdaSecurityGroup: securityStack.lambdaSecurityGroup,
+  databaseSecret: storageStack.databaseSecret,
+  fileUploadBucket: storageStack.fileUploadBucket,
+  userPoolId: cognitoStack.userPool.userPoolId,
+  userPoolArn: cognitoStack.userPool.userPoolArn,
 });
 
 // Additional stacks will be added in subsequent tasks

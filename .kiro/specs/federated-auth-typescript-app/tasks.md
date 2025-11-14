@@ -74,7 +74,7 @@
   - Store RDS credentials in AWS Secrets Manager
   - _Requirements: 2.4, 2.6, 3.5, 3.6, 8.6, 8.7, 8.8, 8.9, 8.10, 8.11_
 
-- [ ] 9. Implement ComputeStack for Lambda functions
+- [x] 9. Implement ComputeStack for Lambda functions
   - Create IAM role for Lambda with least privilege policies
   - Create Lambda function for authentication token validation
   - Create Lambda function for file upload processing
