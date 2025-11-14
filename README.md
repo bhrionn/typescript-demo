@@ -257,4 +257,4 @@ All code follows SOLID design principles:
 
 ## License
 
-Private - All rights reserved
+Private - All rights reserved by Brian Byrne
