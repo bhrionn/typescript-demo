@@ -7,6 +7,7 @@ import {
   getRegion,
   loadEnvironmentConfig,
 } from '../lib/config/environment';
+import { NetworkStack } from '../lib/stacks/network-stack';
 
 /**
  * CDK Application Entry Point
@@ -42,10 +43,14 @@ console.log(`Account: ${account}, Region: ${region}`);
 // eslint-disable-next-line no-console
 console.log(`Project: ${config.projectName}`);
 
-// Stacks will be added in subsequent tasks
+// Initialize stacks
+// NetworkStack provides VPC and subnet infrastructure
+new NetworkStack(app, 'NetworkStack', { config });
+
+// Additional stacks will be added in subsequent tasks
 // Example:
-// new NetworkStack(app, 'NetworkStack', { config });
-// new SecurityStack(app, 'SecurityStack', { config });
+// const networkStack = new NetworkStack(app, 'NetworkStack', { config });
+// new SecurityStack(app, 'SecurityStack', { config, vpc: networkStack.vpc });
 // etc.
 
 // Synthesize the app
