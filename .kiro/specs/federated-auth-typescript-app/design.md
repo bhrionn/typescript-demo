@@ -5,6 +5,7 @@
 This design document outlines the architecture for a modern, enterprise-grade TypeScript application with federated authentication, secure file upload capabilities, and comprehensive AWS infrastructure. The system is built on SOLID design principles and includes robust security controls across all layers.
 
 The application consists of three main components:
+
 1. **Web Application** - React-based frontend with TypeScript
 2. **API & Lambda Functions** - Serverless backend processing
 3. **AWS CDK Infrastructure** - Infrastructure as code for all AWS resources
@@ -102,6 +103,7 @@ VPC (10.0.0.0/16)
 ### 1. Web Application (React + TypeScript)
 
 #### Directory Structure
+
 ```
 web-app/
 ├── src/
@@ -119,6 +121,7 @@ web-app/
 #### Key Components
 
 **AuthService (SOLID: Single Responsibility)**
+
 ```typescript
 interface IAuthService {
   login(provider: 'google' | 'microsoft'): Promise<void>;
@@ -130,6 +133,7 @@ interface IAuthService {
 ```
 
 **FileUploadService (SOLID: Dependency Inversion)**
+
 ```typescript
 interface IFileUploadService {
   uploadFile(file: File, metadata: FileMetadata): Promise<UploadResult>;
@@ -144,6 +148,7 @@ interface IApiClient {
 ```
 
 **UI Components (SOLID: Open-Closed)**
+
 ```typescript
 // Base component that can be extended
 interface IFormComponent {
@@ -153,13 +158,14 @@ interface IFormComponent {
 }
 
 // Specific implementations
-class LoginForm implements IFormComponent { }
-class FileUploadForm implements IFormComponent { }
+class LoginForm implements IFormComponent {}
+class FileUploadForm implements IFormComponent {}
 ```
 
 ### 2. API & Lambda Functions
 
 #### Directory Structure
+
 ```
 api/
 ├── src/
@@ -178,6 +184,7 @@ api/
 #### Lambda Functions
 
 **Auth Handler**
+
 ```typescript
 interface IAuthHandler {
   validateToken(token: string): Promise<TokenValidationResult>;
@@ -186,6 +193,7 @@ interface IAuthHandler {
 ```
 
 **File Upload Handler**
+
 ```typescript
 interface IFileHandler {
   processUpload(event: APIGatewayEvent): Promise<APIGatewayResponse>;
@@ -196,6 +204,7 @@ interface IFileHandler {
 ```
 
 **Database Service (SOLID: Interface Segregation)**
+
 ```typescript
 interface IDatabaseConnection {
   connect(): Promise<void>;
@@ -213,6 +222,7 @@ interface IFileRepository {
 ### 3. AWS CDK Infrastructure
 
 #### Directory Structure
+
 ```
 infrastructure/
 ├── lib/
@@ -234,12 +244,14 @@ infrastructure/
 #### Stack Organization
 
 **NetworkStack**
+
 - VPC with public/private subnets across 2 AZs
 - NAT Gateways for private subnet internet access
 - VPC Flow Logs
 - NACLs for each subnet tier
 
 **SecurityStack**
+
 - AWS WAF WebACL with rules:
   - AWS Managed Rules (Core, Known Bad Inputs)
   - Rate limiting (2000 requests per 5 minutes)
@@ -250,6 +262,7 @@ infrastructure/
   - RDS SG (ingress from Lambda SG only)
 
 **CognitoStack**
+
 - User Pool with:
   - Google identity provider
   - Microsoft identity provider
@@ -259,6 +272,7 @@ infrastructure/
 - Identity Pool for AWS credentials (if needed)
 
 **StorageStack**
+
 - S3 Buckets:
   - Web app bucket (public read via CloudFront)
   - File storage bucket (private, encrypted)
@@ -270,6 +284,7 @@ infrastructure/
   - Private subnets only
 
 **ComputeStack**
+
 - Lambda Functions:
   - Auth handler
   - File upload handler
@@ -279,6 +294,7 @@ infrastructure/
 - Environment variables from Secrets Manager
 
 **ApiStack**
+
 - API Gateway REST API
 - Request validation
 - CORS configuration
@@ -287,6 +303,7 @@ infrastructure/
 - API keys and usage plans
 
 **CdnStack**
+
 - CloudFront distribution
 - Origin: S3 (web app) and API Gateway
 - SSL/TLS certificate
@@ -296,9 +313,10 @@ infrastructure/
 ## Data Models
 
 ### User
+
 ```typescript
 interface User {
-  id: string;                    // UUID
+  id: string; // UUID
   email: string;
   provider: 'google' | 'microsoft';
   providerId: string;
@@ -308,14 +326,15 @@ interface User {
 ```
 
 ### File
+
 ```typescript
 interface FileRecord {
-  id: string;                    // UUID
-  userId: string;                // Foreign key to User
+  id: string; // UUID
+  userId: string; // Foreign key to User
   fileName: string;
-  fileSize: number;              // Bytes
+  fileSize: number; // Bytes
   mimeType: string;
-  s3Key: string;                 // S3 object key
+  s3Key: string; // S3 object key
   s3Bucket: string;
   uploadedAt: Date;
   metadata?: Record<string, any>;
@@ -323,6 +342,7 @@ interface FileRecord {
 ```
 
 ### Database Schema
+
 ```sql
 CREATE TABLE users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -354,6 +374,7 @@ CREATE INDEX idx_files_uploaded_at ON files(uploaded_at);
 ## Error Handling
 
 ### Web Application
+
 ```typescript
 class AppError extends Error {
   constructor(
@@ -395,6 +416,7 @@ class ErrorHandler {
 ```
 
 ### Lambda Functions
+
 ```typescript
 class LambdaError extends Error {
   constructor(
@@ -413,18 +435,18 @@ function formatErrorResponse(error: Error): APIGatewayResponse {
       statusCode: error.statusCode,
       body: JSON.stringify({
         error: error.code,
-        message: error.message
-      })
+        message: error.message,
+      }),
     };
   }
-  
+
   // Don't expose internal errors
   return {
     statusCode: 500,
     body: JSON.stringify({
       error: 'INTERNAL_ERROR',
-      message: 'An unexpected error occurred'
-    })
+      message: 'An unexpected error occurred',
+    }),
   };
 }
 ```
@@ -432,6 +454,7 @@ function formatErrorResponse(error: Error): APIGatewayResponse {
 ## Testing Strategy
 
 ### Web Application Testing
+
 1. **Unit Tests** (Jest + React Testing Library)
    - Service layer logic
    - Utility functions
@@ -449,6 +472,7 @@ function formatErrorResponse(error: Error): APIGatewayResponse {
    - Error scenarios
 
 ### Lambda Function Testing
+
 1. **Unit Tests** (Jest)
    - Handler logic
    - Service layer
@@ -461,6 +485,7 @@ function formatErrorResponse(error: Error): APIGatewayResponse {
    - Secrets Manager (with LocalStack)
 
 ### Infrastructure Testing
+
 1. **CDK Tests**
    - Snapshot tests for stack outputs
    - Fine-grained assertions for resources
@@ -474,6 +499,7 @@ function formatErrorResponse(error: Error): APIGatewayResponse {
 ## Local Development Environment
 
 ### Docker Compose Setup
+
 ```yaml
 version: '3.8'
 
@@ -481,7 +507,7 @@ services:
   web:
     build: ./web-app
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - REACT_APP_API_URL=http://localhost:4000
       - REACT_APP_COGNITO_DOMAIN=http://localhost:9229
@@ -492,7 +518,7 @@ services:
   api:
     build: ./api
     ports:
-      - "4000:4000"
+      - '4000:4000'
     environment:
       - DATABASE_URL=postgresql://user:pass@postgres:5432/appdb
       - AWS_ENDPOINT=http://localstack:4566
@@ -504,7 +530,7 @@ services:
   postgres:
     image: postgres:15-alpine
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=pass
@@ -515,7 +541,7 @@ services:
   localstack:
     image: localstack/localstack:latest
     ports:
-      - "4566:4566"
+      - '4566:4566'
     environment:
       - SERVICES=s3,secretsmanager,cognito-idp
       - DEBUG=1
@@ -528,6 +554,7 @@ volumes:
 ```
 
 ### Local Testing Workflow
+
 1. Start Docker environment: `docker-compose up`
 2. Run database migrations
 3. Seed test data
@@ -538,6 +565,7 @@ volumes:
 ## Security Checklist
 
 ### Infrastructure Security
+
 - [ ] VPC with private subnets for Lambda and RDS
 - [ ] NACLs configured for each subnet tier
 - [ ] Security Groups with least privilege rules
@@ -555,6 +583,7 @@ volumes:
 - [ ] AWS Config for compliance monitoring
 
 ### Application Security
+
 - [ ] Cognito User Pool with federated identity providers
 - [ ] JWT token validation in all Lambda functions
 - [ ] API Gateway request validation
@@ -567,6 +596,7 @@ volumes:
 - [ ] No direct S3 access from web application
 
 ### Code Security
+
 - [ ] Dependency vulnerability scanning
 - [ ] SAST (Static Application Security Testing)
 - [ ] Secrets not hardcoded in source
@@ -577,11 +607,13 @@ volumes:
 ## Deployment Strategy
 
 ### Environments
+
 1. **Development** - For active development
 2. **Staging** - Pre-production testing
 3. **Production** - Live environment
 
 ### CI/CD Pipeline
+
 1. Code commit triggers pipeline
 2. Run linting and type checking
 3. Run unit tests
@@ -594,6 +626,7 @@ volumes:
 10. Promote to next environment
 
 ### Rollback Strategy
+
 - CloudFormation stack rollback on failure
 - Lambda function versions and aliases
 - Database migration rollback scripts
@@ -602,18 +635,21 @@ volumes:
 ## Monitoring and Observability
 
 ### Metrics
+
 - CloudWatch metrics for Lambda (duration, errors, throttles)
 - API Gateway metrics (latency, 4xx, 5xx)
 - RDS metrics (connections, CPU, storage)
 - CloudFront metrics (requests, cache hit rate)
 
 ### Logging
+
 - CloudWatch Logs for Lambda functions
 - VPC Flow Logs for network traffic
 - CloudTrail for API calls
 - Application logs with structured JSON
 
 ### Alarms
+
 - Lambda error rate > 5%
 - API Gateway 5xx rate > 1%
 - RDS CPU > 80%
@@ -623,18 +659,21 @@ volumes:
 ## Performance Considerations
 
 ### Web Application
+
 - Code splitting for optimal bundle size
 - Lazy loading for routes
 - Image optimization
 - Service worker for offline capability (optional)
 
 ### API & Lambda
+
 - Lambda warm-up strategies
 - Connection pooling for RDS
 - Caching frequently accessed data
 - Optimized Lambda memory allocation
 
 ### Database
+
 - Proper indexing strategy
 - Query optimization
 - Read replicas for scaling (if needed)
@@ -643,6 +682,7 @@ volumes:
 ## Technology Stack Summary
 
 ### Web Application
+
 - React 18+
 - TypeScript 5+
 - React Router for navigation
@@ -652,6 +692,7 @@ volumes:
 - Jest + React Testing Library for testing
 
 ### API & Lambda
+
 - Node.js 20+
 - TypeScript 5+
 - AWS SDK v3
@@ -659,11 +700,13 @@ volumes:
 - Jest for testing
 
 ### Infrastructure
+
 - AWS CDK 2.x
 - TypeScript 5+
 - AWS Services: CloudFront, WAF, Cognito, API Gateway, Lambda, S3, RDS, Secrets Manager, CloudTrail, Config
 
 ### Development Tools
+
 - Docker & Docker Compose
 - LocalStack for AWS service mocking
 - ESLint + Prettier

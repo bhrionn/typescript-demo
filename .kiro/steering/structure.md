@@ -39,6 +39,7 @@ web-app/
 ```
 
 ### Component Organization
+
 - Components follow SOLID principles with clear interfaces
 - Each component has a single responsibility
 - Shared components in `components/common/`
@@ -65,6 +66,7 @@ api/
 ```
 
 ### Lambda Handler Pattern
+
 - Each handler validates input, calls services, returns formatted response
 - Middleware handles cross-cutting concerns (auth, logging, errors)
 - Services contain business logic
@@ -92,6 +94,7 @@ infrastructure/
 ```
 
 ### Stack Dependencies
+
 - NetworkStack → SecurityStack → StorageStack → ComputeStack → ApiStack → CdnStack
 - Each stack exports values consumed by dependent stacks
 - Stacks are environment-aware (dev/staging/prod)
@@ -138,6 +141,7 @@ VPC (10.0.0.0/16)
 ## Naming Conventions
 
 ### TypeScript
+
 - **Interfaces**: PascalCase with `I` prefix (e.g., `IAuthService`)
 - **Classes**: PascalCase (e.g., `AuthService`)
 - **Functions/Methods**: camelCase (e.g., `validateToken`)
@@ -145,6 +149,7 @@ VPC (10.0.0.0/16)
 - **Files**: kebab-case for components, PascalCase for classes
 
 ### AWS Resources
+
 - Format: `{project}-{environment}-{resource-type}-{name}`
 - Example: `typescript-demo-prod-lambda-file-upload`
 

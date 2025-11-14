@@ -1,0 +1,24 @@
+{
+  "name": "typescript-demo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "web-app",
+    "api",
+    "infrastructure"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm install --workspace=web-app && npm install --workspace=api && npm install --workspace=infrastructure",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "lint:fix": "npm run lint:fix --workspaces",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\" --ignore-path .prettierignore",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.1.0"
+  }
+}

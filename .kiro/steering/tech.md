@@ -40,6 +40,7 @@ inclusion: always
 ## Common Commands
 
 ### Local Development
+
 ```bash
 # Start local Docker environment
 docker-compose up
@@ -52,6 +53,7 @@ docker-compose logs -f [service-name]
 ```
 
 ### Web Application
+
 ```bash
 cd web-app
 npm install
@@ -62,6 +64,7 @@ npm run lint         # Lint code
 ```
 
 ### API
+
 ```bash
 cd api
 npm install
@@ -72,6 +75,7 @@ npm run lint         # Lint code
 ```
 
 ### Infrastructure
+
 ```bash
 cd infrastructure
 npm install
@@ -83,6 +87,7 @@ cdk destroy          # Tear down stack
 ```
 
 ### Database Migrations
+
 ```bash
 # Run migrations (local)
 npm run migrate:up
@@ -94,18 +99,21 @@ npm run migrate:down
 ## Environment Variables
 
 ### Web App
+
 - `REACT_APP_API_URL` - API Gateway endpoint
 - `REACT_APP_COGNITO_USER_POOL_ID` - Cognito User Pool ID
 - `REACT_APP_COGNITO_CLIENT_ID` - Cognito Client ID
 - `REACT_APP_COGNITO_DOMAIN` - Cognito domain for OAuth
 
 ### API
+
 - `DATABASE_URL` - PostgreSQL connection string
 - `AWS_REGION` - AWS region
 - `S3_BUCKET_NAME` - File storage bucket name
 - `COGNITO_USER_POOL_ID` - For token validation
 
 ### Infrastructure
+
 - `AWS_ACCOUNT` - AWS account ID
 - `AWS_REGION` - Deployment region
 - `ENVIRONMENT` - dev/staging/prod

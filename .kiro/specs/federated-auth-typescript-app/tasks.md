@@ -2,8 +2,8 @@
 
 ## Project Setup and Foundation
 
-- [ ] 1. Initialize project structure and tooling
-  - Create monorepo structure with separate directories for web-app, api, and infrastructure
+- [x] 1. Initialize project structure and tooling
+  - Create monorepo structure with separate directories for web-app, api, docker, and infrastructure
   - Initialize TypeScript configuration for each project with strict mode enabled
   - Set up ESLint and Prettier with shared configurations
   - Configure package.json scripts for build, test, and lint
@@ -95,7 +95,7 @@
 
 - [ ] 11. Implement CdnStack for CloudFront distribution
   - Create CloudFront distribution with S3 web bucket as origin
-  - Add API Gateway as additional origin for /api/* path
+  - Add API Gateway as additional origin for /api/\* path
   - Configure cache behaviors for static assets (max TTL)
   - Configure cache behaviors for API requests (no caching)
   - Enable HTTPS only with TLS 1.2 minimum
@@ -111,7 +111,7 @@
   - Enable AWS Config for compliance monitoring
   - _Requirements: 8.2, 8.13, 8.14, 8.15_
 
-- [ ]* 13. Write CDK infrastructure tests
+- [ ]\* 13. Write CDK infrastructure tests
   - Write snapshot tests for each stack
   - Write fine-grained assertions for security configurations
   - Write tests to validate security checklist items
@@ -137,7 +137,7 @@
   - Add database migration scripts for users and files tables
   - _Requirements: 2.5, 3.5, 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ]* 15.1 Write unit tests for repository layer
+- [ ]\* 15.1 Write unit tests for repository layer
   - Write tests for UserRepository methods
   - Write tests for FileRepository methods
   - Write tests for database connection handling
@@ -151,7 +151,7 @@
   - Add error handling for authentication failures
   - _Requirements: 1.3, 1.4, 2.3_
 
-- [ ]* 16.1 Write unit tests for authentication service
+- [ ]\* 16.1 Write unit tests for authentication service
   - Write tests for token validation
   - Write tests for token refresh
   - Write tests for authentication middleware
@@ -167,7 +167,7 @@
   - Implement comprehensive error handling
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 3.6_
 
-- [ ]* 17.1 Write unit tests for file upload handler
+- [ ]\* 17.1 Write unit tests for file upload handler
   - Write tests for file validation logic
   - Write tests for S3 upload integration
   - Write tests for metadata storage
@@ -183,7 +183,7 @@
   - Add structured logging with CloudWatch
   - _Requirements: 2.3, 8.16_
 
-- [ ]* 18.1 Write unit tests for API handlers
+- [ ]\* 18.1 Write unit tests for API handlers
   - Write tests for file retrieval endpoints
   - Write tests for presigned URL generation
   - Write tests for input validation
@@ -217,7 +217,7 @@
   - Create useAuth custom hook for components
   - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 4.1, 4.5_
 
-- [ ]* 21.1 Write unit tests for authentication service
+- [ ]\* 21.1 Write unit tests for authentication service
   - Write tests for login flow
   - Write tests for logout flow
   - Write tests for token refresh
@@ -233,7 +233,7 @@
   - Create typed methods for each API endpoint
   - _Requirements: 2.2, 4.5_
 
-- [ ]* 22.1 Write unit tests for API client
+- [ ]\* 22.1 Write unit tests for API client
   - Write tests for request interceptor
   - Write tests for response interceptor
   - Write tests for retry logic
@@ -248,7 +248,7 @@
   - Add error handling for upload failures
   - _Requirements: 2.1, 2.2, 4.1, 4.5_
 
-- [ ]* 23.1 Write unit tests for file upload service
+- [ ]\* 23.1 Write unit tests for file upload service
   - Write tests for file validation
   - Write tests for upload progress tracking
   - Write tests for error handling
@@ -273,7 +273,7 @@
   - Add session expiration handling with redirect
   - _Requirements: 1.1, 1.2, 1.4, 1.5, 9.2, 9.4, 9.5_
 
-- [ ]* 25.1 Write component tests for authentication UI
+- [ ]\* 25.1 Write component tests for authentication UI
   - Write tests for LoginPage rendering
   - Write tests for ProtectedRoute behavior
   - Write tests for error states
@@ -288,7 +288,7 @@
   - Implement file download functionality
   - _Requirements: 2.1, 2.2, 9.2, 9.4, 9.5_
 
-- [ ]* 26.1 Write component tests for file upload UI
+- [ ]\* 26.1 Write component tests for file upload UI
   - Write tests for FileUploadForm interactions
   - Write tests for progress display
   - Write tests for FileList rendering
@@ -319,7 +319,7 @@
   - Test with accessibility tools (axe, Lighthouse)
   - _Requirements: 9.3_
 
-- [ ]* 30. Write E2E tests for critical user flows
+- [ ]\* 30. Write E2E tests for critical user flows
   - Set up Playwright for E2E testing
   - Write test for login flow with mock Cognito
   - Write test for file upload and retrieval flow

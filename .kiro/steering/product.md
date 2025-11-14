@@ -18,6 +18,7 @@ This is a modern, enterprise-grade TypeScript application demonstrating federate
 ## Architecture
 
 The application consists of three main components:
+
 1. **Web Application** - React + TypeScript frontend
 2. **API & Lambda Functions** - Serverless backend with Node.js
 3. **AWS Infrastructure** - CDK-managed cloud resources
@@ -25,6 +26,7 @@ The application consists of three main components:
 ## Design Principles
 
 All code follows SOLID design principles:
+
 - Single Responsibility: Each class has one reason to change
 - Open-Closed: Extension without modification
 - Liskov Substitution: Derived classes are substitutable
