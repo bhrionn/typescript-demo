@@ -84,7 +84,7 @@
   - Create Lambda Layer for shared dependencies (AWS SDK, database client)
   - _Requirements: 2.3, 2.4, 2.5, 8.12_
 
-- [ ] 10. Implement ApiStack for API Gateway
+- [x] 10. Implement ApiStack for API Gateway
   - Create REST API in API Gateway
   - Configure API Gateway request validation models
   - Set up Lambda proxy integrations for each endpoint

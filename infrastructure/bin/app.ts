@@ -13,6 +13,7 @@ import { WafStack } from '../lib/stacks/waf-stack';
 import { CognitoStack } from '../lib/stacks/cognito-stack';
 import { StorageStack } from '../lib/stacks/storage-stack';
 import { ComputeStack } from '../lib/stacks/compute-stack';
+import { ApiStack } from '../lib/stacks/api-stack';
 
 /**
  * CDK Application Entry Point
@@ -95,7 +96,7 @@ const storageStack = new StorageStack(app, 'StorageStack', {
 });
 
 // ComputeStack provides Lambda functions for API and business logic
-new ComputeStack(app, 'ComputeStack', {
+const computeStack = new ComputeStack(app, 'ComputeStack', {
   config,
   vpc: networkStack.vpc,
   privateAppSubnets: networkStack.privateAppSubnets,
@@ -104,6 +105,17 @@ new ComputeStack(app, 'ComputeStack', {
   fileUploadBucket: storageStack.fileUploadBucket,
   userPoolId: cognitoStack.userPool.userPoolId,
   userPoolArn: cognitoStack.userPool.userPoolArn,
+});
+
+// ApiStack provides REST API Gateway with Lambda integrations
+new ApiStack(app, 'ApiStack', {
+  config,
+  authValidationFunction: computeStack.authValidationFunction,
+  fileUploadFunction: computeStack.fileUploadFunction,
+  fileListFunction: computeStack.fileListFunction,
+  fileMetadataFunction: computeStack.fileMetadataFunction,
+  fileDownloadUrlFunction: computeStack.fileDownloadUrlFunction,
+  allowedOrigins: app.node.tryGetContext('allowedOrigins'),
 });
 
 // Additional stacks will be added in subsequent tasks
