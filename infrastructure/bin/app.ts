@@ -15,6 +15,7 @@ import { StorageStack } from '../lib/stacks/storage-stack';
 import { ComputeStack } from '../lib/stacks/compute-stack';
 import { ApiStack } from '../lib/stacks/api-stack';
 import { CdnStack } from '../lib/stacks/cdn-stack';
+import { MonitoringStack } from '../lib/stacks/monitoring-stack';
 
 /**
  * CDK Application Entry Point
@@ -133,7 +134,23 @@ new CdnStack(app, 'CdnStack', {
   webAclArn,
 });
 
-// Additional stacks will be added in subsequent tasks
+// MonitoringStack provides CloudTrail, CloudWatch alarms, and AWS Config
+// Note: Get alarm email from context or environment variable
+const alarmEmail = app.node.tryGetContext('alarmEmail') || process.env.ALARM_EMAIL;
+
+new MonitoringStack(app, 'MonitoringStack', {
+  config,
+  lambdaFunctions: [
+    computeStack.authValidationFunction,
+    computeStack.fileUploadFunction,
+    computeStack.fileListFunction,
+    computeStack.fileMetadataFunction,
+    computeStack.fileDownloadUrlFunction,
+  ],
+  api: apiStack.api,
+  database: storageStack.database,
+  alarmEmail,
+});
 
 // Synthesize the app
 app.synth();

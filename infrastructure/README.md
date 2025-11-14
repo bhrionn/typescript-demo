@@ -138,11 +138,25 @@ Stacks are organized with dependencies:
 
 1. **NetworkStack** - VPC, subnets, NACLs
 2. **SecurityStack** - WAF, Security Groups
-3. **CognitoStack** - User Pool, Identity Providers
-4. **StorageStack** - S3 buckets, RDS database
-5. **ComputeStack** - Lambda functions
-6. **ApiStack** - API Gateway
-7. **CdnStack** - CloudFront distribution
+3. **WafStack** - AWS WAF WebACL with security rules
+4. **CognitoStack** - User Pool, Identity Providers
+5. **StorageStack** - S3 buckets, RDS database
+6. **ComputeStack** - Lambda functions
+7. **ApiStack** - API Gateway
+8. **CdnStack** - CloudFront distribution
+9. **MonitoringStack** - CloudTrail, CloudWatch alarms, AWS Config
+
+### Stack Details
+
+- **NetworkStack**: See [README-NETWORK.md](lib/stacks/README-NETWORK.md)
+- **SecurityStack**: See [README-SECURITY.md](lib/stacks/README-SECURITY.md)
+- **WafStack**: See [README-WAF.md](lib/stacks/README-WAF.md)
+- **CognitoStack**: See [README-COGNITO.md](lib/stacks/README-COGNITO.md)
+- **StorageStack**: See [README-STORAGE.md](lib/stacks/README-STORAGE.md)
+- **ComputeStack**: See [README-COMPUTE.md](lib/stacks/README-COMPUTE.md)
+- **ApiStack**: See [README-API.md](lib/stacks/README-API.md)
+- **CdnStack**: See [README-CDN.md](lib/stacks/README-CDN.md)
+- **MonitoringStack**: See [README-MONITORING.md](lib/stacks/README-MONITORING.md)
 
 ## Configuration
 

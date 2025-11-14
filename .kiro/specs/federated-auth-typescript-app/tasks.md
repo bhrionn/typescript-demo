@@ -102,7 +102,7 @@
   - Associate WAF WebACL with CloudFront
   - _Requirements: 3.7, 6.1, 6.2, 6.3, 6.4, 6.5, 8.5_
 
-- [ ] 12. Implement monitoring and audit logging
+- [x] 12. Implement monitoring and audit logging
   - Enable AWS CloudTrail for all API calls
   - Configure CloudWatch alarms for Lambda errors (>5%)
   - Configure CloudWatch alarms for API Gateway 5xx errors (>1%)
@@ -111,7 +111,7 @@
   - Enable AWS Config for compliance monitoring
   - _Requirements: 8.2, 8.13, 8.14, 8.15_
 
-- [ ]\* 13. Write CDK infrastructure tests
+- [ ] 13. Write CDK infrastructure tests
   - Write snapshot tests for each stack
   - Write fine-grained assertions for security configurations
   - Write tests to validate security checklist items
