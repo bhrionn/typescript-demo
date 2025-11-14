@@ -137,7 +137,7 @@
   - Add database migration scripts for users and files tables
   - _Requirements: 2.5, 3.5, 10.1, 10.2, 10.3, 10.4, 10.5_
 
-- [ ]\* 15.1 Write unit tests for repository layer
+- [x] 15.1 Write unit tests for repository layer
   - Write tests for UserRepository methods
   - Write tests for FileRepository methods
   - Write tests for database connection handling
@@ -151,7 +151,7 @@
   - Add error handling for authentication failures
   - _Requirements: 1.3, 1.4, 2.3_
 
-- [ ]\* 16.1 Write unit tests for authentication service
+- [x] 16.1 Write unit tests for authentication service
   - Write tests for token validation
   - Write tests for token refresh
   - Write tests for authentication middleware
@@ -167,7 +167,7 @@
   - Implement comprehensive error handling
   - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 3.6_
 
-- [ ]\* 17.1 Write unit tests for file upload handler
+- [x] 17.1 Write unit tests for file upload handler
   - Write tests for file validation logic
   - Write tests for S3 upload integration
   - Write tests for metadata storage
@@ -183,7 +183,7 @@
   - Add structured logging with CloudWatch
   - _Requirements: 2.3, 8.16_
 
-- [ ]\* 18.1 Write unit tests for API handlers
+- [x] 18.1 Write unit tests for API handlers
   - Write tests for file retrieval endpoints
   - Write tests for presigned URL generation
   - Write tests for input validation
