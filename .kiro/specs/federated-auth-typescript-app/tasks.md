@@ -54,7 +54,7 @@
   - Associate WAF with CloudFront distribution
   - _Requirements: 3.1, 8.4_
 
-- [ ] 7. Implement CognitoStack for authentication
+- [x] 7. Implement CognitoStack for authentication
   - Create Cognito User Pool with email as username
   - Configure password policy (min 8 chars, uppercase, lowercase, numbers, symbols)
   - Add Google identity provider with OAuth configuration
@@ -63,7 +63,7 @@
   - Configure OAuth flows and callback URLs
   - _Requirements: 1.1, 1.2, 1.3, 8.11_
 
-- [ ] 8. Implement StorageStack for S3 and RDS
+- [x] 8. Implement StorageStack for S3 and RDS
   - Create S3 bucket for web application with public read via CloudFront only
   - Create S3 bucket for file uploads with private access and encryption (AES-256)
   - Configure S3 bucket policies to prevent direct public access

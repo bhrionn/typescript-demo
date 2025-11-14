@@ -10,6 +10,8 @@ import {
 import { NetworkStack } from '../lib/stacks/network-stack';
 import { SecurityStack } from '../lib/stacks/security-stack';
 import { WafStack } from '../lib/stacks/waf-stack';
+import { CognitoStack } from '../lib/stacks/cognito-stack';
+import { StorageStack } from '../lib/stacks/storage-stack';
 
 /**
  * CDK Application Entry Point
@@ -50,7 +52,7 @@ console.log(`Project: ${config.projectName}`);
 const networkStack = new NetworkStack(app, 'NetworkStack', { config });
 
 // SecurityStack provides NACLs and Security Groups
-new SecurityStack(app, 'SecurityStack', {
+const securityStack = new SecurityStack(app, 'SecurityStack', {
   config,
   vpc: networkStack.vpc,
   publicSubnets: networkStack.publicSubnets,
@@ -69,6 +71,26 @@ new WafStack(app, 'WafStack', {
     account: config.account,
     region: 'us-east-1', // Override region for WAF stack
   },
+});
+
+// CognitoStack provides user authentication with federated identity providers
+// Note: OAuth credentials should be provided via environment variables or context
+new CognitoStack(app, 'CognitoStack', {
+  config,
+  callbackUrls: app.node.tryGetContext('callbackUrls'),
+  logoutUrls: app.node.tryGetContext('logoutUrls'),
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  microsoftClientId: process.env.MICROSOFT_CLIENT_ID,
+  microsoftClientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+});
+
+// StorageStack provides S3 buckets and RDS PostgreSQL database
+new StorageStack(app, 'StorageStack', {
+  config,
+  vpc: networkStack.vpc,
+  privateDatabaseSubnets: networkStack.privateDatabaseSubnets,
+  rdsSecurityGroup: securityStack.rdsSecurityGroup,
 });
 
 // Additional stacks will be added in subsequent tasks
