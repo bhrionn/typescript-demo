@@ -239,7 +239,7 @@
   - Write tests for retry logic
   - _Requirements: 2.2_
 
-- [-] 23. Implement file upload service
+- [x] 23. Implement file upload service
   - Create IFileUploadService interface
   - Implement FileUploadService with file validation
   - Add file type validation (images, documents, max 50MB)
@@ -248,7 +248,7 @@
   - Add error handling for upload failures
   - _Requirements: 2.1, 2.2, 4.1, 4.5_
 
-- [ ]\* 23.1 Write unit tests for file upload service
+- [x] 23.1 Write unit tests for file upload service
   - Write tests for file validation
   - Write tests for upload progress tracking
   - Write tests for error handling

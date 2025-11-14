@@ -8,3 +8,13 @@ export { AuthService } from './AuthService';
 
 export type { IApiClient, RequestConfig } from './IApiClient';
 export { ApiClient, ApiError } from './ApiClient';
+
+export type {
+  IFileUploadService,
+  ValidationResult,
+  UploadProgress,
+  UploadResult,
+  FileUploadMetadata,
+  ProgressObserver,
+} from './IFileUploadService';
+export { FileUploadService, FileUploadError } from './FileUploadService';
