@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './contexts';
 
 /**
  * Main Application Component
@@ -7,13 +8,15 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
  */
 const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Default route - will be replaced with actual routes in later tasks */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Default route - will be replaced with actual routes in later tasks */}
+          <Route path="/" element={<HomePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
 
