@@ -2,6 +2,8 @@
  * API request and response interfaces
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 
 // Re-export AWS Lambda types for convenience

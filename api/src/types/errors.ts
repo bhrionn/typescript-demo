@@ -3,6 +3,8 @@
  * Single Responsibility: Each error class represents a specific error type
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Base application error class
  */

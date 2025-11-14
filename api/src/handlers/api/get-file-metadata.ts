@@ -155,6 +155,7 @@ async function handleGetFileMetadata(event: AuthenticatedEvent): Promise<APIGate
     const fileId = extractFileId(event);
 
     // Log request (structured logging for CloudWatch)
+    // eslint-disable-next-line no-console
     console.log(
       JSON.stringify({
         action: 'get_file_metadata',
@@ -168,6 +169,7 @@ async function handleGetFileMetadata(event: AuthenticatedEvent): Promise<APIGate
     const metadata = await getFileMetadata(fileId, userId);
 
     // Log success
+    // eslint-disable-next-line no-console
     console.log(
       JSON.stringify({
         action: 'get_file_metadata_success',

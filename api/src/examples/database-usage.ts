@@ -3,6 +3,8 @@
  * This file demonstrates how to use the database layer
  */
 
+/* eslint-disable no-console */
+
 import { createDatabaseConnection } from '../utils/database-connection';
 import { getRepositoryFactory } from '../repositories/repository-factory';
 

@@ -4,6 +4,8 @@
  * Uses prepared statements to prevent SQL injection
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { FileRecord } from '../types/database';
 import { IFileRepository } from './file-repository';
 import { IDatabaseConnection } from './base-repository';

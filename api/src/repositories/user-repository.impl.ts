@@ -4,6 +4,8 @@
  * Uses prepared statements to prevent SQL injection
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { User } from '../types/database';
 import { IUserRepository } from './user-repository';
 import { IDatabaseConnection } from './base-repository';

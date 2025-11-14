@@ -221,6 +221,7 @@ async function handleGeneratePresignedUrl(event: AuthenticatedEvent): Promise<AP
     const expiresIn = parseExpirationTime(event);
 
     // Log request (structured logging for CloudWatch)
+    // eslint-disable-next-line no-console
     console.log(
       JSON.stringify({
         action: 'generate_presigned_url',
@@ -238,6 +239,7 @@ async function handleGeneratePresignedUrl(event: AuthenticatedEvent): Promise<AP
     const url = await generatePresignedUrl(s3Bucket, s3Key, fileName, expiresIn);
 
     // Log success
+    // eslint-disable-next-line no-console
     console.log(
       JSON.stringify({
         action: 'generate_presigned_url_success',

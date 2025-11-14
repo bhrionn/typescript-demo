@@ -70,7 +70,7 @@ interface FileUploadData {
   fileSize: number;
   mimeType: string;
   fileContent: Buffer;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -91,10 +91,10 @@ function parseMultipartFormData(event: AuthenticatedEvent): FileUploadData {
       'application/octet-stream';
     const metadataHeader = event.headers['x-metadata'] || event.queryStringParameters?.metadata;
 
-    let metadata: Record<string, any> | undefined;
+    let metadata: Record<string, unknown> | undefined;
     if (metadataHeader) {
       try {
-        metadata = JSON.parse(metadataHeader);
+        metadata = JSON.parse(metadataHeader) as Record<string, unknown>;
       } catch (error) {
         // Invalid metadata JSON, ignore
         metadata = undefined;

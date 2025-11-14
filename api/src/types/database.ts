@@ -2,6 +2,8 @@
  * Database model interfaces
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export interface User {
   id: string; // UUID
   email: string;

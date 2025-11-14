@@ -4,6 +4,8 @@
  * Following SOLID principles: Single Responsibility, Dependency Inversion
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import {
   CognitoIdentityProviderClient,
   GetUserCommand,

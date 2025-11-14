@@ -52,7 +52,7 @@ async function getUserFiles(
   userId: string,
   limit: number,
   offset: number
-): Promise<{ files: any[]; total: number }> {
+): Promise<ListFilesResponse> {
   const db = await createDatabaseConnection();
   const fileRepository = new FileRepository(db);
 
@@ -149,6 +149,7 @@ async function handleGetUserFiles(event: AuthenticatedEvent): Promise<APIGateway
     const { limit, offset } = parsePaginationParams(event);
 
     // Log request (structured logging for CloudWatch)
+    // eslint-disable-next-line no-console
     console.log(
       JSON.stringify({
         action: 'get_user_files',
@@ -163,6 +164,7 @@ async function handleGetUserFiles(event: AuthenticatedEvent): Promise<APIGateway
     const result = await getUserFiles(userId, limit, offset);
 
     // Log success
+    // eslint-disable-next-line no-console
     console.log(
       JSON.stringify({
         action: 'get_user_files_success',

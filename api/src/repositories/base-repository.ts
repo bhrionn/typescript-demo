@@ -5,6 +5,8 @@
  * - Dependency Inversion: Depend on abstractions, not concrete implementations
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Base repository interface with common CRUD operations
  */

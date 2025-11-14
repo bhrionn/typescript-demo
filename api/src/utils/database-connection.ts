@@ -137,6 +137,7 @@ export class DatabaseConnection implements IDatabaseConnection {
       const client = await this.pool.connect();
       client.release();
 
+      // eslint-disable-next-line no-console
       console.log('Database connection established successfully');
     } catch (error) {
       throw new Error(`Failed to connect to database: ${error}`);
@@ -150,6 +151,7 @@ export class DatabaseConnection implements IDatabaseConnection {
     if (this.pool) {
       await this.pool.end();
       this.pool = null;
+      // eslint-disable-next-line no-console
       console.log('Database connection closed');
     }
   }
@@ -157,7 +159,7 @@ export class DatabaseConnection implements IDatabaseConnection {
   /**
    * Execute a query with parameters (using prepared statements)
    */
-  async query<T>(sql: string, params?: any[]): Promise<T[]> {
+  async query<T>(sql: string, params?: unknown[]): Promise<T[]> {
     if (!this.pool) {
       throw new Error('Database not connected. Call connect() first.');
     }
@@ -173,7 +175,7 @@ export class DatabaseConnection implements IDatabaseConnection {
   /**
    * Execute a query and return a single result
    */
-  async queryOne<T>(sql: string, params?: any[]): Promise<T | null> {
+  async queryOne<T>(sql: string, params?: unknown[]): Promise<T | null> {
     const results = await this.query<T>(sql, params);
     return results.length > 0 ? results[0] : null;
   }
@@ -195,11 +197,11 @@ export class DatabaseConnection implements IDatabaseConnection {
       const transactionConnection: IDatabaseConnection = {
         connect: async () => {},
         disconnect: async () => {},
-        query: async <R>(sql: string, params?: any[]): Promise<R[]> => {
+        query: async <R>(sql: string, params?: unknown[]): Promise<R[]> => {
           const result = await client.query(sql, params);
           return result.rows as R[];
         },
-        queryOne: async <R>(sql: string, params?: any[]): Promise<R | null> => {
+        queryOne: async <R>(sql: string, params?: unknown[]): Promise<R | null> => {
           const result = await client.query(sql, params);
           return result.rows.length > 0 ? result.rows[0] : null;
         },
