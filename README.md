@@ -61,26 +61,50 @@ npm run format
 
 ## Local Development
 
-### Using Docker Compose
+### Using Docker Compose (Recommended)
 
 Start the local development environment with all services:
 
 ```bash
-docker-compose up
+# Start all services and wait for them to be ready
+npm run docker:start
+
+# Or start services in detached mode
+npm run docker:up
+
+# View logs
+npm run docker:logs
+
+# Stop services
+npm run docker:down
+
+# Clean up (remove volumes)
+npm run docker:clean
 ```
 
 This will start:
 
-- Web application on http://localhost:3000
-- API server on http://localhost:4000
-- PostgreSQL database on localhost:5432
-- LocalStack (AWS services mock) on localhost:4566
+- **Web application** on http://localhost:3000
+- **API server** on http://localhost:4000
+- **PostgreSQL database** on localhost:5432
+- **LocalStack** (AWS services mock) on localhost:4566
 
-Stop the environment:
+#### Test Credentials
 
-```bash
-docker-compose down
-```
+- **Email**: test@example.com
+- **Password**: TestPass123!
+
+#### What's Included
+
+The Docker environment automatically:
+
+- Initializes PostgreSQL with the database schema
+- Creates sample test users
+- Sets up LocalStack with S3 buckets, Secrets Manager, and Cognito
+- Enables hot-reload for both web and API
+- Configures networking between all services
+
+For more details, see [docker/README.md](docker/README.md)
 
 ### Individual Project Development
 
@@ -204,12 +228,26 @@ All code follows SOLID design principles:
 
 ### Root Level
 
+#### General
+
 - `npm run install:all` - Install all dependencies
 - `npm run build` - Build all projects
 - `npm run test` - Run all tests
 - `npm run lint` - Lint all projects
 - `npm run lint:fix` - Auto-fix linting issues
 - `npm run format` - Format all code with Prettier
+
+#### Docker
+
+- `npm run docker:start` - Start Docker environment and wait for services
+- `npm run docker:up` - Start Docker environment in detached mode
+- `npm run docker:down` - Stop Docker environment
+- `npm run docker:logs` - View logs from all services
+- `npm run docker:restart` - Restart all services
+- `npm run docker:clean` - Stop and remove all volumes
+- `npm run docker:build` - Rebuild Docker images
+- `npm run docker:ps` - Show running containers
+- `npm run docker:wait` - Wait for services to be healthy
 
 ## Next Steps
 

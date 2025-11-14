@@ -14,7 +14,16 @@
     "lint": "npm run lint --workspaces",
     "lint:fix": "npm run lint:fix --workspaces",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\" --ignore-path .prettierignore",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:restart": "docker-compose restart",
+    "docker:clean": "docker-compose down -v",
+    "docker:build": "docker-compose build",
+    "docker:ps": "docker-compose ps",
+    "docker:wait": "bash docker/wait-for-services.sh",
+    "docker:start": "npm run docker:up && npm run docker:wait"
   },
   "devDependencies": {
     "husky": "^8.0.3",

@@ -1,38 +1,56 @@
-version: '3.8'
-
 services:
   web:
     build:
       context: ./web-app
       dockerfile: Dockerfile
+      target: development
     ports:
       - "3000:3000"
     environment:
       - REACT_APP_API_URL=http://localhost:4000
+      - REACT_APP_COGNITO_USER_POOL_ID=us-east-1_localpool
+      - REACT_APP_COGNITO_CLIENT_ID=local-client-id
       - REACT_APP_COGNITO_DOMAIN=http://localhost:9229
+      - REACT_APP_AWS_REGION=us-east-1
     volumes:
       - ./web-app:/app
       - /app/node_modules
+      - /app/build
     depends_on:
       - api
+    networks:
+      - app-network
+    stdin_open: true
+    tty: true
 
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
+      target: development
     ports:
       - "4000:4000"
     environment:
+      - NODE_ENV=development
       - DATABASE_URL=postgresql://user:pass@postgres:5432/appdb
       - AWS_ENDPOINT=http://localstack:4566
       - AWS_REGION=us-east-1
-      - JWT_SECRET=local-dev-secret
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - JWT_SECRET=local-dev-secret-key-change-in-production
+      - S3_BUCKET_NAME=typescript-demo-dev-file-uploads
+      - COGNITO_USER_POOL_ID=us-east-1_localpool
     volumes:
       - ./api:/app
       - /app/node_modules
+      - /app/dist
     depends_on:
-      - postgres
-      - localstack
+      postgres:
+        condition: service_healthy
+      localstack:
+        condition: service_healthy
+    networks:
+      - app-network
 
   postgres:
     image: postgres:15-alpine
@@ -42,19 +60,46 @@ services:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=pass
       - POSTGRES_DB=appdb
+      - POSTGRES_INITDB_ARGS=-E UTF8
     volumes:
       - postgres-data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d appdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   localstack:
     image: localstack/localstack:latest
     ports:
       - "4566:4566"
+      - "4571:4571"
     environment:
       - SERVICES=s3,secretsmanager,cognito-idp
       - DEBUG=1
       - DATA_DIR=/tmp/localstack/data
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=us-east-1
     volumes:
       - localstack-data:/tmp/localstack
+      - ./docker/init-localstack.sh:/etc/localstack/init/ready.d/init-localstack.sh:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  app-network:
+    driver: bridge
 
 volumes:
   postgres-data:

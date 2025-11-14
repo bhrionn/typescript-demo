@@ -10,7 +10,7 @@
   - Set up Git hooks with Husky for pre-commit linting
   - _Requirements: 1.1, 4.1, 4.2, 4.3, 4.4, 4.5_
 
-- [ ] 2. Set up Docker local development environment
+- [x] 2. Set up Docker local development environment
   - Create docker-compose.yml with services for web, api, postgres, and localstack
   - Write Dockerfiles for web-app and api with multi-stage builds
   - Configure LocalStack for S3, Secrets Manager, and Cognito simulation
