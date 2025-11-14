@@ -1,0 +1,248 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`WafStack Snapshot Tests matches snapshot 1`] = `
+{
+  "Description": "WafStack for typescript-demo (dev)",
+  "Outputs": {
+    "WebAclArn": {
+      "Description": "WAF WebACL ARN for CloudFront association",
+      "Export": {
+        "Name": "typescript-demo-dev-WafStack-WebAclArn",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "WebAcl",
+          "Arn",
+        ],
+      },
+    },
+    "WebAclId": {
+      "Description": "WAF WebACL ID",
+      "Export": {
+        "Name": "typescript-demo-dev-WafStack-WebAclId",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "WebAcl",
+          "Id",
+        ],
+      },
+    },
+    "WebAclName": {
+      "Description": "WAF WebACL Name",
+      "Value": "typescript-demo-dev-waf-webacl",
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "WebAcl": {
+      "Properties": {
+        "DefaultAction": {
+          "Allow": {},
+        },
+        "Description": "WAF WebACL for protecting CloudFront distribution",
+        "Name": "typescript-demo-dev-waf-webacl",
+        "Rules": [
+          {
+            "Name": "AWSManagedRulesCoreRuleSet",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 0,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWS-AWSManagedRulesCommonRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "typescript-demo-dev-waf-AWSManagedRulesCoreRuleSet-metric",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWSManagedRulesKnownBadInputsRuleSet",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 1,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWS-AWSManagedRulesKnownBadInputsRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "typescript-demo-dev-waf-AWSManagedRulesKnownBadInputsRuleSet-metric",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Name": "AWSManagedRulesSQLiRuleSet",
+            "OverrideAction": {
+              "None": {},
+            },
+            "Priority": 2,
+            "Statement": {
+              "ManagedRuleGroupStatement": {
+                "Name": "AWS-AWSManagedRulesSQLiRuleSet",
+                "VendorName": "AWS",
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "typescript-demo-dev-waf-AWSManagedRulesSQLiRuleSet-metric",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Action": {
+              "Block": {},
+            },
+            "Name": "RateLimitRule",
+            "Priority": 3,
+            "Statement": {
+              "RateBasedStatement": {
+                "AggregateKeyType": "IP",
+                "Limit": 2000,
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "typescript-demo-dev-waf-rate-limit-metric",
+              "SampledRequestsEnabled": true,
+            },
+          },
+          {
+            "Action": {
+              "Block": {},
+            },
+            "Name": "XssProtectionRule",
+            "Priority": 4,
+            "Statement": {
+              "OrStatement": {
+                "Statements": [
+                  {
+                    "XssMatchStatement": {
+                      "FieldToMatch": {
+                        "QueryString": {},
+                      },
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "URL_DECODE",
+                        },
+                        {
+                          "Priority": 1,
+                          "Type": "HTML_ENTITY_DECODE",
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    "XssMatchStatement": {
+                      "FieldToMatch": {
+                        "Body": {
+                          "OversizeHandling": "CONTINUE",
+                        },
+                      },
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "URL_DECODE",
+                        },
+                        {
+                          "Priority": 1,
+                          "Type": "HTML_ENTITY_DECODE",
+                        },
+                      ],
+                    },
+                  },
+                  {
+                    "XssMatchStatement": {
+                      "FieldToMatch": {
+                        "UriPath": {},
+                      },
+                      "TextTransformations": [
+                        {
+                          "Priority": 0,
+                          "Type": "URL_DECODE",
+                        },
+                        {
+                          "Priority": 1,
+                          "Type": "HTML_ENTITY_DECODE",
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+            "VisibilityConfig": {
+              "CloudWatchMetricsEnabled": true,
+              "MetricName": "typescript-demo-dev-waf-xss-protection-metric",
+              "SampledRequestsEnabled": true,
+            },
+          },
+        ],
+        "Scope": "CLOUDFRONT",
+        "Tags": [
+          {
+            "Key": "Environment",
+            "Value": "dev",
+          },
+          {
+            "Key": "ManagedBy",
+            "Value": "CDK",
+          },
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-waf-webacl",
+          },
+        ],
+        "VisibilityConfig": {
+          "CloudWatchMetricsEnabled": true,
+          "MetricName": "typescript-demo-dev-waf-webacl-metric",
+          "SampledRequestsEnabled": true,
+        },
+      },
+      "Type": "AWS::WAFv2::WebACL",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

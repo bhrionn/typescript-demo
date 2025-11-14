@@ -1,0 +1,511 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SecurityStack Snapshot Tests matches snapshot 1`] = `
+{
+  "Description": "SecurityStack for typescript-demo (dev)",
+  "Outputs": {
+    "AppSubnetNaclId": {
+      "Description": "Application Subnet NACL ID",
+      "Export": {
+        "Name": "typescript-demo-dev-SecurityStack-AppSubnetNaclId",
+      },
+      "Value": {
+        "Ref": "AppSubnetNacl99EF54AF",
+      },
+    },
+    "DatabaseSubnetNaclId": {
+      "Description": "Database Subnet NACL ID",
+      "Export": {
+        "Name": "typescript-demo-dev-SecurityStack-DatabaseSubnetNaclId",
+      },
+      "Value": {
+        "Ref": "DatabaseSubnetNacl6336EF84",
+      },
+    },
+    "LambdaSecurityGroupId": {
+      "Description": "Lambda Security Group ID",
+      "Export": {
+        "Name": "typescript-demo-dev-SecurityStack-LambdaSecurityGroupId",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaSecurityGroup0BD9FC99",
+          "GroupId",
+        ],
+      },
+    },
+    "PublicSubnetNaclId": {
+      "Description": "Public Subnet NACL ID",
+      "Export": {
+        "Name": "typescript-demo-dev-SecurityStack-PublicSubnetNaclId",
+      },
+      "Value": {
+        "Ref": "PublicSubnetNaclCDE8D344",
+      },
+    },
+    "RdsSecurityGroupId": {
+      "Description": "RDS Security Group ID",
+      "Export": {
+        "Name": "typescript-demo-dev-SecurityStack-RdsSecurityGroupId",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "RdsSecurityGroup632A77E4",
+          "GroupId",
+        ],
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "AppNaclAssoc070A39823": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "AppSubnetNacl99EF54AF",
+        },
+        "SubnetId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpcPrivateAppSubnet1SubnetDB32FF692D1C47EE",
+        },
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+    },
+    "AppNaclAssoc16DAD482A": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "AppSubnetNacl99EF54AF",
+        },
+        "SubnetId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpcPrivateAppSubnet2Subnet2B6BEA344697C4B7",
+        },
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+    },
+    "AppSubnetNacl99EF54AF": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-nacl-app",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Application",
+          },
+        ],
+        "VpcId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
+        },
+      },
+      "Type": "AWS::EC2::NetworkAcl",
+    },
+    "AppSubnetNaclAllowAllOutbound3A6C0B3A": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": true,
+        "NetworkAclId": {
+          "Ref": "AppSubnetNacl99EF54AF",
+        },
+        "Protocol": -1,
+        "RuleAction": "allow",
+        "RuleNumber": 100,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "AppSubnetNaclAllowEphemeralInboundD1D654B9": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "AppSubnetNacl99EF54AF",
+        },
+        "PortRange": {
+          "From": 1024,
+          "To": 65535,
+        },
+        "Protocol": 6,
+        "RuleAction": "allow",
+        "RuleNumber": 110,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "AppSubnetNaclAllowVpcInbound0CAFBF4C": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "AppSubnetNacl99EF54AF",
+        },
+        "Protocol": -1,
+        "RuleAction": "allow",
+        "RuleNumber": 100,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "DatabaseSubnetNacl6336EF84": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-nacl-database",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Database",
+          },
+        ],
+        "VpcId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
+        },
+      },
+      "Type": "AWS::EC2::NetworkAcl",
+    },
+    "DatabaseSubnetNaclAllowEphemeralToApp15B961898": {
+      "Properties": {
+        "CidrBlock": "10.0.10.0/24",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "DatabaseSubnetNacl6336EF84",
+        },
+        "PortRange": {
+          "From": 1024,
+          "To": 65535,
+        },
+        "Protocol": 6,
+        "RuleAction": "allow",
+        "RuleNumber": 120,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "DatabaseSubnetNaclAllowEphemeralToApp2F3FA0A56": {
+      "Properties": {
+        "CidrBlock": "10.0.11.0/24",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "DatabaseSubnetNacl6336EF84",
+        },
+        "PortRange": {
+          "From": 1024,
+          "To": 65535,
+        },
+        "Protocol": 6,
+        "RuleAction": "allow",
+        "RuleNumber": 130,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "DatabaseSubnetNaclAllowPostgresFromApp1ECB539E8": {
+      "Properties": {
+        "CidrBlock": "10.0.10.0/24",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "DatabaseSubnetNacl6336EF84",
+        },
+        "PortRange": {
+          "From": 5432,
+          "To": 5432,
+        },
+        "Protocol": 6,
+        "RuleAction": "allow",
+        "RuleNumber": 100,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "DatabaseSubnetNaclAllowPostgresFromApp27024F710": {
+      "Properties": {
+        "CidrBlock": "10.0.11.0/24",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "DatabaseSubnetNacl6336EF84",
+        },
+        "PortRange": {
+          "From": 5432,
+          "To": 5432,
+        },
+        "Protocol": 6,
+        "RuleAction": "allow",
+        "RuleNumber": 110,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "DatabaseSubnetNaclAllowPostgresToApp1CD5D6252": {
+      "Properties": {
+        "CidrBlock": "10.0.10.0/24",
+        "Egress": true,
+        "NetworkAclId": {
+          "Ref": "DatabaseSubnetNacl6336EF84",
+        },
+        "PortRange": {
+          "From": 1024,
+          "To": 65535,
+        },
+        "Protocol": 6,
+        "RuleAction": "allow",
+        "RuleNumber": 100,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "DatabaseSubnetNaclAllowPostgresToApp22C859EFE": {
+      "Properties": {
+        "CidrBlock": "10.0.11.0/24",
+        "Egress": true,
+        "NetworkAclId": {
+          "Ref": "DatabaseSubnetNacl6336EF84",
+        },
+        "PortRange": {
+          "From": 1024,
+          "To": 65535,
+        },
+        "Protocol": 6,
+        "RuleAction": "allow",
+        "RuleNumber": 110,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "DbNaclAssoc00745ABCA": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "DatabaseSubnetNacl6336EF84",
+        },
+        "SubnetId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpcPrivateDatabaseSubnet1SubnetC4F269C691B38DBC",
+        },
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+    },
+    "DbNaclAssoc11EB91531": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "DatabaseSubnetNacl6336EF84",
+        },
+        "SubnetId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpcPrivateDatabaseSubnet2Subnet26B28FD387389CC6",
+        },
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+    },
+    "LambdaSecurityGroup0BD9FC99": {
+      "Properties": {
+        "GroupDescription": "Security group for Lambda functions with egress to RDS, S3, and Secrets Manager",
+        "GroupName": "typescript-demo-dev-sg-lambda",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "0.0.0.0/0",
+            "Description": "Allow HTTPS egress to AWS services (S3, Secrets Manager)",
+            "FromPort": 443,
+            "IpProtocol": "tcp",
+            "ToPort": 443,
+          },
+          {
+            "CidrIp": "10.0.0.0/16",
+            "Description": "Allow PostgreSQL egress to RDS",
+            "FromPort": 5432,
+            "IpProtocol": "tcp",
+            "ToPort": 5432,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-sg-lambda",
+          },
+          {
+            "Key": "Purpose",
+            "Value": "Lambda Functions",
+          },
+        ],
+        "VpcId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "PublicNaclAssoc0F0780EDB": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "PublicSubnetNaclCDE8D344",
+        },
+        "SubnetId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpcPublicSubnet1Subnet5C2D37C4FFA2B456",
+        },
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+    },
+    "PublicNaclAssoc1B095DC97": {
+      "Properties": {
+        "NetworkAclId": {
+          "Ref": "PublicSubnetNaclCDE8D344",
+        },
+        "SubnetId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpcPublicSubnet2Subnet691E08A351552740",
+        },
+      },
+      "Type": "AWS::EC2::SubnetNetworkAclAssociation",
+    },
+    "PublicSubnetNaclAllowAllOutboundAFCDB707": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": true,
+        "NetworkAclId": {
+          "Ref": "PublicSubnetNaclCDE8D344",
+        },
+        "Protocol": -1,
+        "RuleAction": "allow",
+        "RuleNumber": 100,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "PublicSubnetNaclAllowEphemeralInbound6D3B6F57": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "PublicSubnetNaclCDE8D344",
+        },
+        "PortRange": {
+          "From": 1024,
+          "To": 65535,
+        },
+        "Protocol": 6,
+        "RuleAction": "allow",
+        "RuleNumber": 120,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "PublicSubnetNaclAllowHttpInboundBA0705ED": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "PublicSubnetNaclCDE8D344",
+        },
+        "PortRange": {
+          "From": 80,
+          "To": 80,
+        },
+        "Protocol": 6,
+        "RuleAction": "allow",
+        "RuleNumber": 100,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "PublicSubnetNaclAllowHttpsInboundF7F83AE0": {
+      "Properties": {
+        "CidrBlock": "0.0.0.0/0",
+        "Egress": false,
+        "NetworkAclId": {
+          "Ref": "PublicSubnetNaclCDE8D344",
+        },
+        "PortRange": {
+          "From": 443,
+          "To": 443,
+        },
+        "Protocol": 6,
+        "RuleAction": "allow",
+        "RuleNumber": 110,
+      },
+      "Type": "AWS::EC2::NetworkAclEntry",
+    },
+    "PublicSubnetNaclCDE8D344": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-nacl-public",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Public",
+          },
+        ],
+        "VpcId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
+        },
+      },
+      "Type": "AWS::EC2::NetworkAcl",
+    },
+    "RdsSecurityGroup632A77E4": {
+      "Properties": {
+        "GroupDescription": "Security group for RDS PostgreSQL with ingress from Lambda only",
+        "GroupName": "typescript-demo-dev-sg-rds",
+        "SecurityGroupEgress": [
+          {
+            "CidrIp": "255.255.255.255/32",
+            "Description": "Disallow all traffic",
+            "FromPort": 252,
+            "IpProtocol": "icmp",
+            "ToPort": 86,
+          },
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-sg-rds",
+          },
+          {
+            "Key": "Purpose",
+            "Value": "RDS PostgreSQL",
+          },
+        ],
+        "VpcId": {
+          "Fn::ImportValue": "typescript-demo-dev-NetworkStack:ExportsOutputRefVpc8378EB38272D6E3A",
+        },
+      },
+      "Type": "AWS::EC2::SecurityGroup",
+    },
+    "RdsSecurityGroupfromSecurityStackLambdaSecurityGroupE62022A85432698AEC8E": {
+      "Properties": {
+        "Description": "Allow PostgreSQL from Lambda functions",
+        "FromPort": 5432,
+        "GroupId": {
+          "Fn::GetAtt": [
+            "RdsSecurityGroup632A77E4",
+            "GroupId",
+          ],
+        },
+        "IpProtocol": "tcp",
+        "SourceSecurityGroupId": {
+          "Fn::GetAtt": [
+            "LambdaSecurityGroup0BD9FC99",
+            "GroupId",
+          ],
+        },
+        "ToPort": 5432,
+      },
+      "Type": "AWS::EC2::SecurityGroupIngress",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

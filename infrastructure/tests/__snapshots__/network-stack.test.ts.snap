@@ -1,0 +1,748 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NetworkStack Snapshot Tests matches snapshot 1`] = `
+{
+  "Description": "NetworkStack for typescript-demo (dev)",
+  "Outputs": {
+    "AvailabilityZones": {
+      "Description": "Availability Zones",
+      "Export": {
+        "Name": "typescript-demo-dev-NetworkStack-AvailabilityZones",
+      },
+      "Value": "dummy1a,dummy1b",
+    },
+    "PrivateAppSubnetIds": {
+      "Description": "Private Application Subnet IDs",
+      "Export": {
+        "Name": "typescript-demo-dev-NetworkStack-PrivateAppSubnetIds",
+      },
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            {
+              "Ref": "VpcPrivateAppSubnet1SubnetDB32FF69",
+            },
+            ",",
+            {
+              "Ref": "VpcPrivateAppSubnet2Subnet2B6BEA34",
+            },
+          ],
+        ],
+      },
+    },
+    "PrivateDatabaseSubnetIds": {
+      "Description": "Private Database Subnet IDs",
+      "Export": {
+        "Name": "typescript-demo-dev-NetworkStack-PrivateDatabaseSubnetIds",
+      },
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            {
+              "Ref": "VpcPrivateDatabaseSubnet1SubnetC4F269C6",
+            },
+            ",",
+            {
+              "Ref": "VpcPrivateDatabaseSubnet2Subnet26B28FD3",
+            },
+          ],
+        ],
+      },
+    },
+    "PublicSubnetIds": {
+      "Description": "Public Subnet IDs",
+      "Export": {
+        "Name": "typescript-demo-dev-NetworkStack-PublicSubnetIds",
+      },
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            {
+              "Ref": "VpcPublicSubnet1Subnet5C2D37C4",
+            },
+            ",",
+            {
+              "Ref": "VpcPublicSubnet2Subnet691E08A3",
+            },
+          ],
+        ],
+      },
+    },
+    "VpcCidr": {
+      "Description": "VPC CIDR Block",
+      "Export": {
+        "Name": "typescript-demo-dev-NetworkStack-VpcCidr",
+      },
+      "Value": {
+        "Fn::GetAtt": [
+          "Vpc8378EB38",
+          "CidrBlock",
+        ],
+      },
+    },
+    "VpcId": {
+      "Description": "VPC ID",
+      "Export": {
+        "Name": "typescript-demo-dev-NetworkStack-VpcId",
+      },
+      "Value": {
+        "Ref": "Vpc8378EB38",
+      },
+    },
+  },
+  "Parameters": {
+    "BootstrapVersion": {
+      "Default": "/cdk-bootstrap/hnb659fds/version",
+      "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]",
+      "Type": "AWS::SSM::Parameter::Value<String>",
+    },
+  },
+  "Resources": {
+    "Vpc8378EB38": {
+      "Properties": {
+        "CidrBlock": "10.0.0.0/16",
+        "EnableDnsHostnames": true,
+        "EnableDnsSupport": true,
+        "InstanceTenancy": "default",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-vpc-main",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::VPC",
+    },
+    "VpcFlowLogsLogGroupCA4834AB": {
+      "DeletionPolicy": "Delete",
+      "Properties": {
+        "LogGroupName": "typescript-demo-dev-logs-vpc-flow-logs",
+        "RetentionInDays": 7,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "VpcIGWD7BA715C": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-vpc-main",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::InternetGateway",
+    },
+    "VpcPrivateAppSubnet1DefaultRouteC7354940": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "VpcPublicSubnet1NATGateway4D7517AA",
+        },
+        "RouteTableId": {
+          "Ref": "VpcPrivateAppSubnet1RouteTable41EB90F8",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "VpcPrivateAppSubnet1RouteTable41EB90F8": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-private-app-1",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Application",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "VpcPrivateAppSubnet1RouteTableAssociationF5B029F7": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcPrivateAppSubnet1RouteTable41EB90F8",
+        },
+        "SubnetId": {
+          "Ref": "VpcPrivateAppSubnet1SubnetDB32FF69",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "VpcPrivateAppSubnet1SubnetDB32FF69": {
+      "Properties": {
+        "AvailabilityZone": "dummy1a",
+        "CidrBlock": "10.0.2.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "PrivateApp",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private",
+          },
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-private-app-1",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Application",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "VpcPrivateAppSubnet2DefaultRouteCE44632A": {
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "NatGatewayId": {
+          "Ref": "VpcPublicSubnet2NATGateway9182C01D",
+        },
+        "RouteTableId": {
+          "Ref": "VpcPrivateAppSubnet2RouteTable55AB69FD",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "VpcPrivateAppSubnet2RouteTable55AB69FD": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-private-app-2",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Application",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "VpcPrivateAppSubnet2RouteTableAssociation080AB45E": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcPrivateAppSubnet2RouteTable55AB69FD",
+        },
+        "SubnetId": {
+          "Ref": "VpcPrivateAppSubnet2Subnet2B6BEA34",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "VpcPrivateAppSubnet2Subnet2B6BEA34": {
+      "Properties": {
+        "AvailabilityZone": "dummy1b",
+        "CidrBlock": "10.0.3.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "PrivateApp",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Private",
+          },
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-private-app-2",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Application",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "VpcPrivateDatabaseSubnet1RouteTable1D4B554F": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-private-db-1",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Database",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "VpcPrivateDatabaseSubnet1RouteTableAssociation183797A5": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcPrivateDatabaseSubnet1RouteTable1D4B554F",
+        },
+        "SubnetId": {
+          "Ref": "VpcPrivateDatabaseSubnet1SubnetC4F269C6",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "VpcPrivateDatabaseSubnet1SubnetC4F269C6": {
+      "Properties": {
+        "AvailabilityZone": "dummy1a",
+        "CidrBlock": "10.0.4.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "PrivateDatabase",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Isolated",
+          },
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-private-db-1",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Database",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "VpcPrivateDatabaseSubnet2RouteTableAssociationED8AE5B4": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcPrivateDatabaseSubnet2RouteTableB969DC0F",
+        },
+        "SubnetId": {
+          "Ref": "VpcPrivateDatabaseSubnet2Subnet26B28FD3",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "VpcPrivateDatabaseSubnet2RouteTableB969DC0F": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-private-db-2",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Database",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "VpcPrivateDatabaseSubnet2Subnet26B28FD3": {
+      "Properties": {
+        "AvailabilityZone": "dummy1b",
+        "CidrBlock": "10.0.5.0/24",
+        "MapPublicIpOnLaunch": false,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "PrivateDatabase",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Isolated",
+          },
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-private-db-2",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Database",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "VpcPublicSubnet1DefaultRoute3DA9E72A": {
+      "DependsOn": [
+        "VpcVPCGWBF912B6E",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "VpcIGWD7BA715C",
+        },
+        "RouteTableId": {
+          "Ref": "VpcPublicSubnet1RouteTable6C95E38E",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "VpcPublicSubnet1EIPD7E02669": {
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-public-1",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Public",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::EIP",
+    },
+    "VpcPublicSubnet1NATGateway4D7517AA": {
+      "DependsOn": [
+        "VpcPublicSubnet1DefaultRoute3DA9E72A",
+        "VpcPublicSubnet1RouteTableAssociation97140677",
+      ],
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "VpcPublicSubnet1EIPD7E02669",
+            "AllocationId",
+          ],
+        },
+        "SubnetId": {
+          "Ref": "VpcPublicSubnet1Subnet5C2D37C4",
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-public-1",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Public",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::NatGateway",
+    },
+    "VpcPublicSubnet1RouteTable6C95E38E": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-public-1",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Public",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "VpcPublicSubnet1RouteTableAssociation97140677": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcPublicSubnet1RouteTable6C95E38E",
+        },
+        "SubnetId": {
+          "Ref": "VpcPublicSubnet1Subnet5C2D37C4",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "VpcPublicSubnet1Subnet5C2D37C4": {
+      "Properties": {
+        "AvailabilityZone": "dummy1a",
+        "CidrBlock": "10.0.0.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-public-1",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Public",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "VpcPublicSubnet2DefaultRoute97F91067": {
+      "DependsOn": [
+        "VpcVPCGWBF912B6E",
+      ],
+      "Properties": {
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "VpcIGWD7BA715C",
+        },
+        "RouteTableId": {
+          "Ref": "VpcPublicSubnet2RouteTable94F7E489",
+        },
+      },
+      "Type": "AWS::EC2::Route",
+    },
+    "VpcPublicSubnet2EIP3C605A87": {
+      "Properties": {
+        "Domain": "vpc",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-public-2",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Public",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::EIP",
+    },
+    "VpcPublicSubnet2NATGateway9182C01D": {
+      "DependsOn": [
+        "VpcPublicSubnet2DefaultRoute97F91067",
+        "VpcPublicSubnet2RouteTableAssociationDD5762D8",
+      ],
+      "Properties": {
+        "AllocationId": {
+          "Fn::GetAtt": [
+            "VpcPublicSubnet2EIP3C605A87",
+            "AllocationId",
+          ],
+        },
+        "SubnetId": {
+          "Ref": "VpcPublicSubnet2Subnet691E08A3",
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-public-2",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Public",
+          },
+        ],
+      },
+      "Type": "AWS::EC2::NatGateway",
+    },
+    "VpcPublicSubnet2RouteTable94F7E489": {
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-public-2",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Public",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::RouteTable",
+    },
+    "VpcPublicSubnet2RouteTableAssociationDD5762D8": {
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "VpcPublicSubnet2RouteTable94F7E489",
+        },
+        "SubnetId": {
+          "Ref": "VpcPublicSubnet2Subnet691E08A3",
+        },
+      },
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+    },
+    "VpcPublicSubnet2Subnet691E08A3": {
+      "Properties": {
+        "AvailabilityZone": "dummy1b",
+        "CidrBlock": "10.0.1.0/24",
+        "MapPublicIpOnLaunch": true,
+        "Tags": [
+          {
+            "Key": "aws-cdk:subnet-name",
+            "Value": "Public",
+          },
+          {
+            "Key": "aws-cdk:subnet-type",
+            "Value": "Public",
+          },
+          {
+            "Key": "Name",
+            "Value": "typescript-demo-dev-subnet-public-2",
+          },
+          {
+            "Key": "Tier",
+            "Value": "Public",
+          },
+        ],
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::Subnet",
+    },
+    "VpcVPCGWBF912B6E": {
+      "Properties": {
+        "InternetGatewayId": {
+          "Ref": "VpcIGWD7BA715C",
+        },
+        "VpcId": {
+          "Ref": "Vpc8378EB38",
+        },
+      },
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+    },
+    "VpcVpcFlowLogB476133B": {
+      "Properties": {
+        "DeliverLogsPermissionArn": {
+          "Fn::GetAtt": [
+            "VpcVpcFlowLogIAMRole4BADB6E9",
+            "Arn",
+          ],
+        },
+        "LogDestinationType": "cloud-watch-logs",
+        "LogGroupName": {
+          "Ref": "VpcFlowLogsLogGroupCA4834AB",
+        },
+        "ResourceId": {
+          "Ref": "Vpc8378EB38",
+        },
+        "ResourceType": "VPC",
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "NetworkStack/Vpc/VpcFlowLog",
+          },
+        ],
+        "TrafficType": "ALL",
+      },
+      "Type": "AWS::EC2::FlowLog",
+    },
+    "VpcVpcFlowLogIAMRole4BADB6E9": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "vpc-flow-logs.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "NetworkStack/Vpc/VpcFlowLog",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "VpcVpcFlowLogIAMRoleDefaultPolicy59281762": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+                "logs:DescribeLogStreams",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "VpcFlowLogsLogGroupCA4834AB",
+                  "Arn",
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "VpcVpcFlowLogIAMRoleDefaultPolicy59281762",
+        "Roles": [
+          {
+            "Ref": "VpcVpcFlowLogIAMRole4BADB6E9",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+  },
+  "Rules": {
+    "CheckBootstrapVersion": {
+      "Assertions": [
+        {
+          "Assert": {
+            "Fn::Not": [
+              {
+                "Fn::Contains": [
+                  [
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                  ],
+                  {
+                    "Ref": "BootstrapVersion",
+                  },
+                ],
+              },
+            ],
+          },
+          "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI.",
+        },
+      ],
+    },
+  },
+}
+`;

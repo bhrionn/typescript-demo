@@ -5,7 +5,11 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest --passWithNoTests",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:security": "jest tests/security-checklist.test.ts",
+    "validate:security": "./scripts/validate-security.sh",
     "cdk": "cdk",
     "lint": "eslint \"lib/**/*.ts\" \"bin/**/*.ts\" --no-error-on-unmatched-pattern",
     "lint:fix": "eslint \"lib/**/*.ts\" \"bin/**/*.ts\" --fix --no-error-on-unmatched-pattern",

@@ -111,7 +111,7 @@
   - Enable AWS Config for compliance monitoring
   - _Requirements: 8.2, 8.13, 8.14, 8.15_
 
-- [ ] 13. Write CDK infrastructure tests
+- [x] 13. Write CDK infrastructure tests
   - Write snapshot tests for each stack
   - Write fine-grained assertions for security configurations
   - Write tests to validate security checklist items
