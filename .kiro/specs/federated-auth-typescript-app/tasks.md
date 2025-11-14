@@ -224,7 +224,7 @@
   - Write tests for useAuth hook
   - _Requirements: 1.1, 1.2, 1.3_
 
-- [ ] 22. Implement API client service
+- [x] 22. Implement API client service
   - Create IApiClient interface for HTTP operations
   - Implement ApiClient using Axios with interceptors
   - Add request interceptor to attach JWT token
