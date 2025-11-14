@@ -174,7 +174,7 @@
   - Write tests for error scenarios
   - _Requirements: 2.1, 2.4_
 
-- [ ] 18. Implement API business logic Lambda handlers
+- [x] 18. Implement API business logic Lambda handlers
   - Create handler for retrieving user's uploaded files
   - Create handler for getting file metadata by ID
   - Create handler for generating presigned S3 URLs for file download
