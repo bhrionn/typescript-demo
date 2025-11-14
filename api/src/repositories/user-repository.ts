@@ -23,7 +23,7 @@ export interface IUserRepository extends IBaseRepository<User> {
   /**
    * Create or update a user (upsert)
    */
-  upsert(user: Omit<User, 'id' | 'createdAt'>): Promise<User>;
+  upsert(user: Omit<User, 'id'>): Promise<User>;
 
   /**
    * Update last login timestamp

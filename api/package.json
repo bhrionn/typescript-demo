@@ -9,7 +9,9 @@
     "test:watch": "jest --watch",
     "lint": "eslint \"src/**/*.ts\" --no-error-on-unmatched-pattern",
     "lint:fix": "eslint \"src/**/*.ts\" --fix --no-error-on-unmatched-pattern",
-    "format": "prettier --write \"src/**/*.{ts,json,md}\""
+    "format": "prettier --write \"src/**/*.{ts,json,md}\"",
+    "migrate:up": "ts-node migrations/run-migrations.ts",
+    "migrate:down": "ts-node migrations/run-migrations.ts rollback"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.470.0",

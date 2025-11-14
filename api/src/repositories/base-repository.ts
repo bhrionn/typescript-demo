@@ -22,7 +22,7 @@ export interface IBaseRepository<T, ID = string> {
   /**
    * Create a new record
    */
-  create(data: Omit<T, 'id' | 'createdAt'>): Promise<T>;
+  create(data: Omit<T, 'id'>): Promise<T>;
 
   /**
    * Update an existing record
