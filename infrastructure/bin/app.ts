@@ -14,6 +14,7 @@ import { CognitoStack } from '../lib/stacks/cognito-stack';
 import { StorageStack } from '../lib/stacks/storage-stack';
 import { ComputeStack } from '../lib/stacks/compute-stack';
 import { ApiStack } from '../lib/stacks/api-stack';
+import { CdnStack } from '../lib/stacks/cdn-stack';
 
 /**
  * CDK Application Entry Point
@@ -108,7 +109,7 @@ const computeStack = new ComputeStack(app, 'ComputeStack', {
 });
 
 // ApiStack provides REST API Gateway with Lambda integrations
-new ApiStack(app, 'ApiStack', {
+const apiStack = new ApiStack(app, 'ApiStack', {
   config,
   authValidationFunction: computeStack.authValidationFunction,
   fileUploadFunction: computeStack.fileUploadFunction,
@@ -116,6 +117,20 @@ new ApiStack(app, 'ApiStack', {
   fileMetadataFunction: computeStack.fileMetadataFunction,
   fileDownloadUrlFunction: computeStack.fileDownloadUrlFunction,
   allowedOrigins: app.node.tryGetContext('allowedOrigins'),
+});
+
+// CdnStack provides CloudFront distribution for global content delivery
+// Note: This stack depends on WafStack which must be deployed in us-east-1
+const wafStackName = `${config.projectName}-${config.environment}-WafStack`;
+const webAclArn = cdk.Fn.importValue(`${wafStackName}-WebAclArn`);
+
+new CdnStack(app, 'CdnStack', {
+  config,
+  webAppBucketName: storageStack.webAppBucket.bucketName,
+  webAppBucketArn: storageStack.webAppBucket.bucketArn,
+  webAppBucketRegionalDomainName: storageStack.webAppBucket.bucketRegionalDomainName,
+  api: apiStack.api,
+  webAclArn,
 });
 
 // Additional stacks will be added in subsequent tasks

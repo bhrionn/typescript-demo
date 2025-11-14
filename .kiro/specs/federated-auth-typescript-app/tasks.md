@@ -93,7 +93,7 @@
   - Enable API Gateway CloudWatch logging
   - _Requirements: 2.2, 3.7, 8.17_
 
-- [ ] 11. Implement CdnStack for CloudFront distribution
+- [x] 11. Implement CdnStack for CloudFront distribution
   - Create CloudFront distribution with S3 web bucket as origin
   - Add API Gateway as additional origin for /api/\* path
   - Configure cache behaviors for static assets (max TTL)
