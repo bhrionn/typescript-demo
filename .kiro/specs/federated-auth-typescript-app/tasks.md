@@ -45,7 +45,7 @@
   - Create Security Group for RDS (ingress from Lambda SG on port 5432 only)
   - _Requirements: 3.2, 3.3, 3.4, 8.2, 8.3_
 
-- [ ] 6. Implement WAF configuration with security rules
+- [x] 6. Implement WAF configuration with security rules
   - Create AWS WAF WebACL with AWS Managed Rules for Core Rule Set
   - Add AWS Managed Rules for Known Bad Inputs
   - Configure rate-based rule (2000 requests per 5 minutes per IP)

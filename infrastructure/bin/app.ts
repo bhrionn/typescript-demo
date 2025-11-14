@@ -9,6 +9,7 @@ import {
 } from '../lib/config/environment';
 import { NetworkStack } from '../lib/stacks/network-stack';
 import { SecurityStack } from '../lib/stacks/security-stack';
+import { WafStack } from '../lib/stacks/waf-stack';
 
 /**
  * CDK Application Entry Point
@@ -55,6 +56,19 @@ new SecurityStack(app, 'SecurityStack', {
   publicSubnets: networkStack.publicSubnets,
   privateAppSubnets: networkStack.privateAppSubnets,
   privateDatabaseSubnets: networkStack.privateDatabaseSubnets,
+});
+
+// WafStack provides AWS WAF WebACL with security rules
+// Note: WAF for CloudFront must be deployed in us-east-1 region
+new WafStack(app, 'WafStack', {
+  config: {
+    ...config,
+    region: 'us-east-1', // WAF for CloudFront must be in us-east-1
+  },
+  env: {
+    account: config.account,
+    region: 'us-east-1', // Override region for WAF stack
+  },
 });
 
 // Additional stacks will be added in subsequent tasks
