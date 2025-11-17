@@ -279,7 +279,7 @@
   - Write tests for error states
   - _Requirements: 1.1, 1.4_
 
-- [ ] 26. Implement file upload UI components
+- [x] 26. Implement file upload UI components
   - Create FileUploadForm component with drag-and-drop
   - Implement file selection and preview
   - Add upload progress bar
@@ -288,13 +288,13 @@
   - Implement file download functionality
   - _Requirements: 2.1, 2.2, 9.2, 9.4, 9.5_
 
-- [ ]\* 26.1 Write component tests for file upload UI
+- [x] 26.1 Write component tests for file upload UI
   - Write tests for FileUploadForm interactions
   - Write tests for progress display
   - Write tests for FileList rendering
   - _Requirements: 2.1, 9.2_
 
-- [ ] 27. Implement responsive layout and navigation
+- [x] 27. Implement responsive layout and navigation
   - Create AppLayout component with header and navigation
   - Implement responsive design for mobile and desktop
   - Add navigation menu with route links
