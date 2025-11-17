@@ -4,144 +4,97 @@
  * Following Single Responsibility Principle - handles only dashboard UI
  */
 
-import React from 'react';
-import {
-  Container,
-  Box,
-  Typography,
-  Paper,
-  Stack,
-  AppBar,
-  Toolbar,
-  IconButton,
-  Menu,
-  MenuItem,
-} from '@mui/material';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import React, { useState, useMemo } from 'react';
+import { Typography, Paper, Stack, Box } from '@mui/material';
 import { useAuth } from '../hooks/useAuth';
-import { useToast } from '../components/common/Toast';
+import { AppLayout } from '../components/layout';
+import { FileUploadForm, FileList } from '../components/files';
+import { FileUploadService } from '../services/FileUploadService';
+import { ApiClient } from '../services/ApiClient';
+import { AuthService } from '../services/AuthService';
 
 /**
  * Dashboard Page Component
- * Displays user information and provides logout functionality
+ * Displays user information and file upload functionality using AppLayout wrapper
  */
 export const DashboardPage: React.FC = () => {
-  const { user, logout } = useAuth();
-  const { showSuccess, showError } = useToast();
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const { user } = useAuth();
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
+  // Initialize services (memoized to prevent recreation on each render)
+  const authService = useMemo(() => new AuthService(), []);
+  const apiClient = useMemo(() => new ApiClient(authService), [authService]);
+  const uploadService = useMemo(() => new FileUploadService(apiClient), [apiClient]);
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleLogout = async () => {
-    try {
-      handleMenuClose();
-      await logout();
-      showSuccess('Successfully logged out');
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Logout failed';
-      showError(message);
-    }
+  /**
+   * Handle successful upload - refresh file list
+   */
+  const handleUploadSuccess = () => {
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      {/* App Bar */}
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            TypeScript Demo Application
+    <AppLayout>
+      <Stack spacing={3}>
+        {/* Welcome Section */}
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h4" gutterBottom>
+            Welcome, {user?.name || user?.email}!
           </Typography>
-          <IconButton
-            size="large"
-            edge="end"
-            color="inherit"
-            aria-label="account menu"
-            aria-controls="account-menu"
-            aria-haspopup="true"
-            onClick={handleMenuOpen}
-          >
-            <AccountCircleIcon />
-          </IconButton>
-          <Menu
-            id="account-menu"
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-          >
-            <MenuItem disabled>
-              <Typography variant="body2" color="text.secondary">
-                {user?.email}
-              </Typography>
-            </MenuItem>
-            <MenuItem onClick={handleLogout}>Logout</MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
+          <Typography variant="body1" color="text.secondary">
+            You are successfully authenticated via {user?.provider}.
+          </Typography>
+        </Paper>
 
-      {/* Main Content */}
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Stack spacing={3}>
-          {/* Welcome Section */}
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h4" gutterBottom>
-              Welcome, {user?.name || user?.email}!
-            </Typography>
-            <Typography variant="body1" color="text.secondary">
-              You are successfully authenticated via {user?.provider}.
-            </Typography>
-          </Paper>
+        {/* File Upload and List Section */}
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+            gap: 3,
+          }}
+        >
+          <FileUploadForm uploadService={uploadService} onUploadSuccess={handleUploadSuccess} />
+          <FileList apiClient={apiClient} refreshTrigger={refreshTrigger} />
+        </Box>
 
-          {/* User Info Section */}
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              User Information
+        {/* User Info Section */}
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            User Information
+          </Typography>
+          <Stack spacing={1}>
+            <Typography variant="body2">
+              <strong>Email:</strong> {user?.email}
             </Typography>
-            <Stack spacing={1}>
-              <Typography variant="body2">
-                <strong>Email:</strong> {user?.email}
-              </Typography>
-              <Typography variant="body2">
-                <strong>Provider:</strong> {user?.provider}
-              </Typography>
-              <Typography variant="body2">
-                <strong>User ID:</strong> {user?.id}
-              </Typography>
-            </Stack>
-          </Paper>
+            <Typography variant="body2">
+              <strong>Provider:</strong> {user?.provider}
+            </Typography>
+            <Typography variant="body2">
+              <strong>User ID:</strong> {user?.id}
+            </Typography>
+          </Stack>
+        </Paper>
 
-          {/* Features Section */}
-          <Paper sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Available Features
-            </Typography>
-            <Typography variant="body2" color="text.secondary" paragraph>
-              This is a demonstration application showcasing:
-            </Typography>
-            <Stack spacing={1} sx={{ pl: 2 }}>
-              <Typography variant="body2">
-                • Federated authentication (Google, Microsoft)
-              </Typography>
-              <Typography variant="body2">• Secure session management</Typography>
-              <Typography variant="body2">• Protected routes</Typography>
-              <Typography variant="body2">• AWS Cognito integration</Typography>
-            </Stack>
-          </Paper>
-        </Stack>
-      </Container>
-    </Box>
+        {/* Features Section */}
+        <Paper sx={{ p: 3 }}>
+          <Typography variant="h6" gutterBottom>
+            Available Features
+          </Typography>
+          <Typography variant="body2" color="text.secondary" paragraph>
+            This is a demonstration application showcasing:
+          </Typography>
+          <Stack spacing={1} sx={{ pl: 2 }}>
+            <Typography variant="body2">• Federated authentication (Google, Microsoft)</Typography>
+            <Typography variant="body2">• Secure file upload with drag-and-drop</Typography>
+            <Typography variant="body2">• File management and download</Typography>
+            <Typography variant="body2">• Secure session management</Typography>
+            <Typography variant="body2">• Protected routes</Typography>
+            <Typography variant="body2">• AWS Cognito integration</Typography>
+            <Typography variant="body2">• Responsive layout and navigation</Typography>
+          </Stack>
+        </Paper>
+      </Stack>
+    </AppLayout>
   );
 };
