@@ -254,6 +254,37 @@ All code follows SOLID design principles:
 - `npm run docker:ps` - Show running containers
 - `npm run docker:wait` - Wait for services to be healthy
 
+## Security Validation
+
+Comprehensive security validation tools and documentation:
+
+### Quick Start
+
+Run automated security validation:
+
+```bash
+cd infrastructure
+npm run validate:security
+```
+
+### Security Documentation
+
+- **[Security Checklist](SECURITY_CHECKLIST.md)** - Complete security verification procedures
+- **[Security Validation Usage](infrastructure/scripts/USAGE.md)** - Detailed validation guide
+
+### What's Validated
+
+- ✅ S3 bucket security (encryption, public access blocking)
+- ✅ RDS security (encryption, private subnets, access control)
+- ✅ VPC and network configuration (subnets, NACLs, security groups)
+- ✅ IAM roles and policies (least privilege)
+- ✅ WAF rules (SQL injection, XSS, rate limiting)
+- ✅ Cognito configuration (password policy, federated providers)
+- ✅ CloudTrail and logging (audit trails, VPC flow logs)
+- ✅ Encryption in transit (TLS 1.2+)
+
+See [SECURITY_CHECKLIST.md](SECURITY_CHECKLIST.md) for complete details.
+
 ## Integration Testing
 
 Comprehensive end-to-end integration testing documentation and tools are available:
@@ -287,11 +318,42 @@ Run automated integration tests:
 
 See [INTEGRATION_TESTING_README.md](INTEGRATION_TESTING_README.md) for complete details.
 
-## CI/CD Pipeline
+## Deployment
+
+### Quick Start
+
+For detailed deployment instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
+
+```bash
+# Set environment
+export AWS_PROFILE=dev
+export ENVIRONMENT=dev
+export AWS_ACCOUNT=123456789012
+export AWS_REGION=us-east-1
+
+# Deploy infrastructure
+cd infrastructure
+npm run build
+npx cdk deploy --all
+
+# Deploy application
+cd ../web-app
+npm run build
+# Upload to S3 (see deployment guide)
+```
+
+### Documentation
+
+- **[Deployment Guide](DEPLOYMENT_GUIDE.md)** - Complete deployment instructions for all environments
+- **[Environment Variables](ENVIRONMENT_VARIABLES.md)** - Comprehensive environment variable reference
+- **[Troubleshooting Guide](TROUBLESHOOTING.md)** - Solutions to common issues
+- **[Security Checklist](SECURITY_CHECKLIST.md)** - Security verification procedures
+
+### CI/CD Pipeline
 
 This project uses GitHub Actions for continuous integration and deployment. See [CI/CD Documentation](.github/workflows/README.md) for details.
 
-### Workflows
+**Workflows**:
 
 - **CI Pipeline**: Runs on all PRs and pushes - linting, type checking, tests, security scans
 - **Security Scanning**: Daily security scans and vulnerability checks
@@ -299,9 +361,7 @@ This project uses GitHub Actions for continuous integration and deployment. See 
 - **Deploy to Staging**: Automatic deployment on push to `main` branch
 - **Deploy to Production**: Manual deployment with approval required
 
-### Deployment Guide
-
-See [Deployment Guide](.github/DEPLOYMENT_GUIDE.md) for detailed deployment instructions and troubleshooting.
+**Setup**: See [CI/CD Setup Instructions](.github/SETUP_INSTRUCTIONS.md)
 
 ## Next Steps
 
