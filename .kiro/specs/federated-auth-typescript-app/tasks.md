@@ -273,7 +273,7 @@
   - Add session expiration handling with redirect
   - _Requirements: 1.1, 1.2, 1.4, 1.5, 9.2, 9.4, 9.5_
 
-- [ ]\* 25.1 Write component tests for authentication UI
+- [x] 25.1 Write component tests for authentication UI
   - Write tests for LoginPage rendering
   - Write tests for ProtectedRoute behavior
   - Write tests for error states
