@@ -5,7 +5,6 @@
 
 import {
   announceToScreenReader,
-  trapFocus,
   getFocusableElements,
   createFocusManager,
   generateAriaId,

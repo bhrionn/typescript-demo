@@ -5,12 +5,11 @@
 
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter, MemoryRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import { LoginPage } from '../LoginPage';
 import { AuthProvider } from '../../contexts/AuthContext';
 import { ToastProvider } from '../../components/common/Toast';
 import type { IAuthService } from '../../services/IAuthService';
-import type { User } from '../../types/auth';
 
 // Test wrapper component
 const TestWrapper: React.FC<{
@@ -232,9 +231,8 @@ describe('LoginPage', () => {
     });
 
     it('disables buttons during login attempt', async () => {
-      let resolveLogin: () => void;
-      const loginPromise = new Promise<void>((resolve) => {
-        resolveLogin = resolve;
+      const loginPromise = new Promise<void>((_resolve) => {
+        // Login promise never resolves to simulate pending state
       });
       mockAuthService.login.mockReturnValue(loginPromise);
 
@@ -249,7 +247,6 @@ describe('LoginPage', () => {
       });
 
       const googleButton = screen.getByTestId('login-google-button');
-      const microsoftButton = screen.getByTestId('login-microsoft-button');
 
       // Click button to start login
       userEvent.click(googleButton);

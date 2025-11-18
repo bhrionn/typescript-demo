@@ -171,7 +171,7 @@ describe('FileUploadForm', () => {
       mockUploadService.validateFile.mockReturnValue(validationResult);
 
       mockUploadService.uploadFile.mockImplementation(
-        async (file: File, metadata: any, observer?: ProgressObserver) => {
+        async (_file: File, _metadata: any, observer?: ProgressObserver) => {
           // Simulate progress updates
           if (observer?.next) {
             observer.next({ loaded: 50, total: 100, percentage: 50 });
