@@ -11,6 +11,11 @@ import { APIGatewayResponse } from '../../types/api';
 import { AuthenticatedEvent, withAuth } from '../../middleware/auth-middleware';
 import { FileRepository } from '../../repositories/file-repository.impl';
 import { createDatabaseConnection } from '../../utils/database-connection';
+import { createLogger } from '../../middleware/logging';
+import {
+  parseMultipartFormData as parseMultipart,
+  validateMultipartRequest,
+} from '../../utils/multipart-parser';
 import {
   ValidationError,
   FileProcessingError,
@@ -75,10 +80,57 @@ interface FileUploadData {
 
 /**
  * Parse multipart form data from API Gateway event
- * Simplified parser for base64-encoded binary data
+ * Supports both multipart/form-data and legacy JSON/base64 formats
  */
 function parseMultipartFormData(event: AuthenticatedEvent): FileUploadData {
-  // For base64-encoded body (API Gateway binary support)
+  const contentType = event.headers['content-type'] || event.headers['Content-Type'] || '';
+
+  // Handle multipart/form-data
+  if (contentType.includes('multipart/form-data')) {
+    const validation = validateMultipartRequest(contentType);
+    if (!validation.isValid || !validation.boundary) {
+      throw new ValidationError(validation.error || 'Invalid multipart request');
+    }
+
+    if (!event.body) {
+      throw new ValidationError('No request body provided');
+    }
+
+    // Parse multipart data
+    const body = event.isBase64Encoded
+      ? Buffer.from(event.body, 'base64')
+      : Buffer.from(event.body);
+    const parsed = parseMultipart(body, validation.boundary);
+
+    // Get the first file
+    if (parsed.files.length === 0) {
+      throw new ValidationError('No file found in multipart request');
+    }
+
+    const file = parsed.files[0];
+
+    // Extract metadata from fields
+    const metadata: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(parsed.fields)) {
+      if (key !== 'file' && key !== 'fileName' && key !== 'mimeType') {
+        try {
+          metadata[key] = JSON.parse(value);
+        } catch {
+          metadata[key] = value;
+        }
+      }
+    }
+
+    return {
+      fileName: file.filename,
+      fileSize: file.size,
+      mimeType: file.contentType,
+      fileContent: file.data,
+      metadata: Object.keys(metadata).length > 0 ? metadata : undefined,
+    };
+  }
+
+  // Legacy: For base64-encoded body (API Gateway binary support)
   if (event.isBase64Encoded && event.body) {
     const buffer = Buffer.from(event.body, 'base64');
 
@@ -110,7 +162,7 @@ function parseMultipartFormData(event: AuthenticatedEvent): FileUploadData {
     };
   }
 
-  // For JSON body with base64 file content
+  // Legacy: For JSON body with base64 file content
   if (event.body) {
     try {
       const body = JSON.parse(event.body);
@@ -213,7 +265,11 @@ async function uploadToS3(
       s3Bucket: S3_BUCKET_NAME,
     };
   } catch (error) {
-    console.error('S3 upload error:', error);
+    const logger = createLogger({ userId, s3Key });
+    logger.error('S3 upload failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorStack: error instanceof Error ? error.stack : undefined,
+    });
     throw new ExternalServiceError('S3', 'Failed to upload file to storage', {
       error: error instanceof Error ? error.message : 'Unknown error',
     });
@@ -246,7 +302,12 @@ async function storeFileMetadata(
 
     return fileRecord.id;
   } catch (error) {
-    console.error('Database error:', error);
+    const logger = createLogger({ userId, s3Key });
+    logger.error('Database operation failed', {
+      operation: 'storeFileMetadata',
+      error: error instanceof Error ? error.message : 'Unknown error',
+      errorStack: error instanceof Error ? error.stack : undefined,
+    });
     throw new DatabaseError('Failed to store file metadata', {
       error: error instanceof Error ? error.message : 'Unknown error',
     });
@@ -284,8 +345,14 @@ function createSuccessResponse(
 /**
  * Create error response
  */
-function createErrorResponse(error: Error): APIGatewayResponse {
-  console.error('Handler error:', error);
+function createErrorResponse(error: Error, requestId?: string): APIGatewayResponse {
+  const logger = createLogger({ requestId });
+
+  logger.error('File upload handler error', {
+    errorType: error.name,
+    message: error.message,
+    stack: error.stack,
+  });
 
   // Handle known error types
   if (
@@ -321,6 +388,8 @@ function createErrorResponse(error: Error): APIGatewayResponse {
  * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 3.6
  */
 async function handleFileUpload(event: AuthenticatedEvent): Promise<APIGatewayResponse> {
+  const requestId = event.requestContext?.requestId;
+
   try {
     // Ensure user is authenticated (middleware handles this)
     if (!event.user?.userId) {
@@ -344,7 +413,7 @@ async function handleFileUpload(event: AuthenticatedEvent): Promise<APIGatewayRe
     // Return success response
     return createSuccessResponse(fileId, fileData.fileName, new Date());
   } catch (error) {
-    return createErrorResponse(error as Error);
+    return createErrorResponse(error as Error, requestId);
   }
 }
 
