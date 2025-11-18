@@ -200,7 +200,7 @@ export function sanitizeUrl(url: string, allowedProtocols: string[] = ['http', '
     }
 
     return urlObj.toString();
-  } catch (error) {
+  } catch {
     throw new ValidationError('Invalid URL format');
   }
 }

@@ -95,7 +95,7 @@ function parseMultipartFormData(event: AuthenticatedEvent): FileUploadData {
     if (metadataHeader) {
       try {
         metadata = JSON.parse(metadataHeader) as Record<string, unknown>;
-      } catch (error) {
+      } catch {
         // Invalid metadata JSON, ignore
         metadata = undefined;
       }

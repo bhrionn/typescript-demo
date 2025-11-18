@@ -3,8 +3,6 @@
  * Requirements: 10.4
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { UserRepository } from '../user-repository.impl';
 import { IDatabaseConnection } from '../base-repository';
 import { User } from '../../types/database';

@@ -75,7 +75,7 @@ export class ApiClient implements IApiClient {
           }
 
           return config;
-        } catch (error) {
+        } catch {
           // If token retrieval fails, proceed without token
           // The API will return 401 if authentication is required
           return config;

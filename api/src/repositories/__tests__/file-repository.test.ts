@@ -3,8 +3,6 @@
  * Requirements: 10.4
  */
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { FileRepository } from '../file-repository.impl';
 import { IDatabaseConnection } from '../base-repository';
 import { FileRecord } from '../../types/database';

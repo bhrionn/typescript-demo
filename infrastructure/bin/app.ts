@@ -44,11 +44,10 @@ const region = getRegion();
 // Load environment-specific configuration
 const config = loadEnvironmentConfig(environment, account, region);
 
-// eslint-disable-next-line no-console
 console.log(`Initializing CDK app for environment: ${environment}`);
-// eslint-disable-next-line no-console
+
 console.log(`Account: ${account}, Region: ${region}`);
-// eslint-disable-next-line no-console
+
 console.log(`Project: ${config.projectName}`);
 
 // Initialize stacks

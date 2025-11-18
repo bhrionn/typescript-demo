@@ -2,6 +2,7 @@
   "name": "api",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "build": "tsc",
     "type-check": "tsc --noEmit",
@@ -15,28 +16,28 @@
     "migrate:down": "ts-node migrations/run-migrations.ts rollback"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.470.0",
-    "@aws-sdk/s3-request-presigner": "^3.470.0",
-    "@aws-sdk/client-secrets-manager": "^3.470.0",
     "@aws-sdk/client-cognito-identity-provider": "^3.470.0",
-    "pg": "^8.11.0",
+    "@aws-sdk/client-s3": "^3.470.0",
+    "@aws-sdk/client-secrets-manager": "^3.470.0",
+    "@aws-sdk/s3-request-presigner": "^3.470.0",
     "jsonwebtoken": "^9.0.2",
-    "jwks-rsa": "^3.1.0"
+    "jwks-rsa": "^3.1.0",
+    "pg": "^8.11.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.1",
     "@types/aws-lambda": "^8.10.130",
+    "@types/jest": "^29.5.0",
+    "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.10.0",
     "@types/pg": "^8.10.0",
-    "@types/jsonwebtoken": "^9.0.5",
-    "@types/jest": "^29.5.0",
-    "@typescript-eslint/eslint-plugin": "^6.13.0",
-    "@typescript-eslint/parser": "^6.13.0",
-    "eslint": "^8.55.0",
-    "eslint-config-prettier": "^9.1.0",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^9.1.2",
     "jest": "^29.7.0",
+    "prettier": "^3.1.0",
     "ts-jest": "^29.1.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.3.0",
-    "prettier": "^3.1.0"
+    "typescript-eslint": "^8.47.0"
   }
 }

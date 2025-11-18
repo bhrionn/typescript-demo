@@ -234,7 +234,7 @@ export class DatabaseConnection implements IDatabaseConnection {
     try {
       await this.pool.query('SELECT 1');
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

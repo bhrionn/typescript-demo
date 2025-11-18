@@ -56,7 +56,7 @@ export class AuthService implements IAuthService {
       });
 
       this.initialized = true;
-    } catch (error) {
+    } catch {
       throw new AuthenticationError('Failed to initialize authentication service', 'INIT_ERROR');
     }
   }
@@ -100,7 +100,7 @@ export class AuthService implements IAuthService {
     try {
       const session = await fetchAuthSession();
       return session.tokens?.accessToken?.toString() || null;
-    } catch (error) {
+    } catch {
       // User not authenticated
       return null;
     }
@@ -114,7 +114,7 @@ export class AuthService implements IAuthService {
     try {
       const session = await fetchAuthSession();
       return !!session.tokens?.accessToken;
-    } catch (error) {
+    } catch {
       return false;
     }
   }
@@ -160,7 +160,7 @@ export class AuthService implements IAuthService {
         provider: provider as IdentityProvider,
         name: attributes.name,
       };
-    } catch (error) {
+    } catch {
       // User not authenticated
       return null;
     }
