@@ -51,9 +51,12 @@ export const ProtectedRoute: React.FC<IProtectedRouteProps> = ({
             justifyContent: 'center',
             gap: 2,
           }}
+          role="status"
+          aria-live="polite"
+          aria-label="Verifying authentication"
           data-testid="protected-route-loading"
         >
-          <CircularProgress size={48} />
+          <CircularProgress size={48} aria-label="Loading" />
           <Typography variant="body1" color="text.secondary">
             Verifying authentication...
           </Typography>

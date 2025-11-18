@@ -5,14 +5,14 @@
 
 import React, { useState } from 'react';
 import { useErrorHandler } from '../hooks/useErrorHandler';
-import { ValidationError, FileUploadError, NetworkError, AuthenticationError } from '../types';
+import { ValidationError, AppFileUploadError, NetworkError, AuthenticationError } from '../types';
 import { Button, Box, Typography } from '@mui/material';
 
 /**
  * Example Component: Form with Error Handling
  */
 export const FormWithErrorHandling: React.FC = () => {
-  const { handleError, handleErrorWithMessage } = useErrorHandler();
+  const { handleError } = useErrorHandler();
   const [email, setEmail] = useState('');
 
   const handleSubmit = async () => {
@@ -57,14 +57,14 @@ export const FormWithErrorHandling: React.FC = () => {
  * Example Component: File Upload with Error Handling
  */
 export const FileUploadWithErrorHandling: React.FC = () => {
-  const { handleError, handleErrorWithMessage } = useErrorHandler();
+  const { handleErrorWithMessage } = useErrorHandler();
 
   const handleFileUpload = async (file: File) => {
     try {
       // Validate file
       const MAX_SIZE = 50 * 1024 * 1024; // 50MB
       if (file.size > MAX_SIZE) {
-        throw new FileUploadError('File is too large', {
+        throw new AppFileUploadError('File is too large', {
           maxSize: MAX_SIZE,
           actualSize: file.size,
           fileName: file.name,
@@ -73,7 +73,7 @@ export const FileUploadWithErrorHandling: React.FC = () => {
 
       const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
       if (!allowedTypes.includes(file.type)) {
-        throw new FileUploadError('Invalid file type', {
+        throw new AppFileUploadError('Invalid file type', {
           allowedTypes,
           actualType: file.type,
           fileName: file.name,
@@ -107,7 +107,7 @@ export const FileUploadWithErrorHandling: React.FC = () => {
  * Example Component: API Call with Error Handling
  */
 export const ApiCallWithErrorHandling: React.FC = () => {
-  const { handleError, wrapAsync } = useErrorHandler();
+  const { wrapAsync } = useErrorHandler();
   const [data, setData] = useState<any>(null);
 
   // Wrap async function to automatically handle errors
@@ -163,7 +163,7 @@ export const MultipleErrorTypesExample: React.FC = () => {
           throw new NetworkError('Connection lost');
 
         case 'upload':
-          throw new FileUploadError('Upload failed', {
+          throw new AppFileUploadError('Upload failed', {
             reason: 'Network timeout',
           });
 

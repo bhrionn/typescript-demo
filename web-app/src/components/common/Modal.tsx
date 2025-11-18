@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { IBaseComponent } from './IComponent';
+import { trapFocus, createFocusManager } from '../../utils/accessibility';
 
 /**
  * Modal size types
@@ -95,18 +96,35 @@ export const Modal: React.FC<IModalProps> = ({
   ariaLabel,
 }) => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const focusManager = useRef(createFocusManager());
+  const cleanupFocusTrap = useRef<(() => void) | null>(null);
 
   // Focus management for accessibility
   useEffect(() => {
-    if (open && contentRef.current) {
-      // Focus the first focusable element in the modal
-      const focusableElements = contentRef.current.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      if (focusableElements.length > 0) {
-        (focusableElements[0] as HTMLElement).focus();
+    if (open) {
+      // Save current focus
+      focusManager.current.saveFocus();
+
+      // Set up focus trap after a short delay to ensure DOM is ready
+      const timer = setTimeout(() => {
+        if (contentRef.current) {
+          cleanupFocusTrap.current = trapFocus(contentRef.current);
+        }
+      }, 100);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    } else {
+      // Restore focus when modal closes
+      if (cleanupFocusTrap.current) {
+        cleanupFocusTrap.current();
+        cleanupFocusTrap.current = null;
       }
+      focusManager.current.restoreFocus();
     }
+
+    return undefined;
   }, [open]);
 
   // Handle escape key

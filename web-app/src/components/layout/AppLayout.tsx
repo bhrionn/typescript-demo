@@ -134,6 +134,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
             <ListItemButton
               selected={isActive}
               onClick={() => handleNavigate(item.path)}
+              aria-label={`${item.label}${isActive ? ' (current page)' : ''}`}
+              aria-current={isActive ? 'page' : undefined}
               sx={{
                 '&.Mui-selected': {
                   backgroundColor: theme.palette.primary.main,
@@ -148,6 +150,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
               }}
             >
               <ListItemIcon
+                aria-hidden="true"
                 sx={{
                   color: isActive ? 'inherit' : theme.palette.text.secondary,
                 }}
@@ -171,7 +174,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           {isMobile && (
             <IconButton
               color="inherit"
-              aria-label="open navigation menu"
+              aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="mobile-navigation-drawer"
               edge="start"
               onClick={handleMobileMenuToggle}
               sx={{ mr: 2 }}
@@ -183,26 +188,49 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
           {/* App title */}
           <Typography
             variant="h6"
-            component="div"
+            component="h1"
+            role="button"
+            tabIndex={0}
             sx={{
               flexGrow: 1,
               cursor: 'pointer',
               fontSize: { xs: '1rem', sm: '1.25rem' },
             }}
             onClick={() => handleNavigate('/')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleNavigate('/');
+              }
+            }}
+            aria-label="TypeScript Demo App - Go to home"
           >
             TypeScript Demo App
           </Typography>
 
           {/* Desktop navigation */}
           {!isMobile && (
-            <Box sx={{ display: 'flex', gap: 2, mr: 2 }}>
+            <Box
+              sx={{ display: 'flex', gap: 2, mr: 2 }}
+              component="nav"
+              aria-label="Main navigation"
+            >
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
                   <Box
                     key={item.path}
+                    role="button"
+                    tabIndex={0}
                     onClick={() => handleNavigate(item.path)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleNavigate(item.path);
+                      }
+                    }}
+                    aria-label={`${item.label}${isActive ? ' (current page)' : ''}`}
+                    aria-current={isActive ? 'page' : undefined}
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
@@ -215,10 +243,14 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
                       '&:hover': {
                         backgroundColor: 'rgba(255, 255, 255, 0.15)',
                       },
+                      '&:focus-visible': {
+                        outline: '2px solid white',
+                        outlineOffset: '2px',
+                      },
                       transition: 'background-color 0.2s',
                     }}
                   >
-                    {item.icon}
+                    <Box aria-hidden="true">{item.icon}</Box>
                     <Typography variant="body2">{item.label}</Typography>
                   </Box>
                 );
@@ -268,6 +300,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         anchor="left"
         open={mobileMenuOpen}
         onClose={handleMobileMenuToggle}
+        id="mobile-navigation-drawer"
+        aria-label="Mobile navigation menu"
         sx={{
           '& .MuiDrawer-paper': {
             width: 250,
@@ -275,17 +309,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
         }}
       >
         <Box sx={{ p: 2 }}>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" component="h2" gutterBottom>
             Navigation
           </Typography>
         </Box>
         <Divider />
-        {renderNavItems()}
+        <nav aria-label="Mobile navigation">{renderNavItems()}</nav>
       </Drawer>
 
       {/* Main content */}
       <Box
         component="main"
+        id="main-content"
+        role="main"
+        aria-label="Main content"
+        tabIndex={-1}
         sx={{
           flexGrow: 1,
           backgroundColor: theme.palette.grey[50],

@@ -71,6 +71,9 @@ export const LoginPage: React.FC = () => {
             alignItems: 'center',
             justifyContent: 'center',
           }}
+          role="status"
+          aria-live="polite"
+          aria-label="Checking authentication status"
         >
           <Card title="Loading..." testId="login-loading">
             <Typography>Checking authentication status...</Typography>
@@ -98,6 +101,8 @@ export const LoginPage: React.FC = () => {
             width: '100%',
             borderRadius: 2,
           }}
+          role="region"
+          aria-label="Login form"
         >
           <Stack spacing={3}>
             {/* Header */}
@@ -105,7 +110,7 @@ export const LoginPage: React.FC = () => {
               <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
                 Welcome
               </Typography>
-              <Typography variant="body1" color="text.secondary">
+              <Typography variant="body1" color="text.secondary" id="login-description">
                 Sign in to continue to the application
               </Typography>
             </Box>

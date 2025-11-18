@@ -15,7 +15,6 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  ListItemSecondaryAction,
   IconButton,
   CircularProgress,
   Alert,
@@ -31,6 +30,7 @@ import {
 } from '@mui/icons-material';
 import type { IApiClient } from '../../services/IApiClient';
 import type { FileMetadata } from '../../types/api';
+import { announceToScreenReader } from '../../utils/accessibility';
 
 interface FileListProps {
   apiClient: IApiClient;
@@ -57,9 +57,14 @@ export const FileList: React.FC<FileListProps> = ({ apiClient, refreshTrigger })
     try {
       const userFiles = await apiClient.getUserFiles();
       setFiles(userFiles);
+      announceToScreenReader(
+        `Loaded ${userFiles.length} ${userFiles.length === 1 ? 'file' : 'files'}`,
+        'polite'
+      );
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load files';
       setError(errorMessage);
+      announceToScreenReader(`Error: ${errorMessage}`, 'assertive');
     } finally {
       setIsLoading(false);
     }
@@ -78,6 +83,7 @@ export const FileList: React.FC<FileListProps> = ({ apiClient, refreshTrigger })
   const handleDownload = async (file: FileMetadata) => {
     setDownloadingFileId(file.id);
     setError(null);
+    announceToScreenReader(`Downloading ${file.fileName}`, 'polite');
 
     try {
       // Get presigned URL
@@ -91,9 +97,12 @@ export const FileList: React.FC<FileListProps> = ({ apiClient, refreshTrigger })
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+
+      announceToScreenReader(`Download started for ${file.fileName}`, 'polite');
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to download file';
       setError(errorMessage);
+      announceToScreenReader(`Download failed: ${errorMessage}`, 'assertive');
     } finally {
       setDownloadingFileId(null);
     }
@@ -165,15 +174,20 @@ export const FileList: React.FC<FileListProps> = ({ apiClient, refreshTrigger })
 
       {/* Loading State */}
       {isLoading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-          <CircularProgress />
+        <Box
+          sx={{ display: 'flex', justifyContent: 'center', p: 4 }}
+          role="status"
+          aria-live="polite"
+          aria-label="Loading files"
+        >
+          <CircularProgress aria-label="Loading" />
         </Box>
       )}
 
       {/* Empty State */}
       {!isLoading && files.length === 0 && (
-        <Box sx={{ textAlign: 'center', p: 4 }}>
-          <FileIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+        <Box sx={{ textAlign: 'center', p: 4 }} role="status">
+          <FileIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} aria-hidden="true" />
           <Typography variant="body1" color="text.secondary">
             No files uploaded yet
           </Typography>
@@ -185,7 +199,7 @@ export const FileList: React.FC<FileListProps> = ({ apiClient, refreshTrigger })
 
       {/* File List */}
       {!isLoading && files.length > 0 && (
-        <List>
+        <List aria-label="Uploaded files list">
           {files.map((file) => (
             <ListItem
               key={file.id}
@@ -196,13 +210,31 @@ export const FileList: React.FC<FileListProps> = ({ apiClient, refreshTrigger })
                 mb: 1,
                 '&:last-child': { mb: 0 },
               }}
+              secondaryAction={
+                <IconButton
+                  edge="end"
+                  onClick={() => handleDownload(file)}
+                  disabled={downloadingFileId === file.id}
+                  aria-label={`Download ${file.fileName}`}
+                >
+                  {downloadingFileId === file.id ? (
+                    <CircularProgress size={24} aria-label="Downloading" />
+                  ) : (
+                    <DownloadIcon />
+                  )}
+                </IconButton>
+              }
             >
-              <ListItemIcon>{getFileIcon(file.mimeType)}</ListItemIcon>
+              <ListItemIcon aria-hidden="true">{getFileIcon(file.mimeType)}</ListItemIcon>
               <ListItemText
                 primary={
                   <Stack direction="row" spacing={1} alignItems="center">
                     <Typography variant="body1">{file.fileName}</Typography>
-                    <Chip label={getFileTypeLabel(file.mimeType)} size="small" />
+                    <Chip
+                      label={getFileTypeLabel(file.mimeType)}
+                      size="small"
+                      aria-label={`File type: ${getFileTypeLabel(file.mimeType)}`}
+                    />
                   </Stack>
                 }
                 secondary={
@@ -216,20 +248,6 @@ export const FileList: React.FC<FileListProps> = ({ apiClient, refreshTrigger })
                   </Stack>
                 }
               />
-              <ListItemSecondaryAction>
-                <IconButton
-                  edge="end"
-                  onClick={() => handleDownload(file)}
-                  disabled={downloadingFileId === file.id}
-                  aria-label={`Download ${file.fileName}`}
-                >
-                  {downloadingFileId === file.id ? (
-                    <CircularProgress size={24} />
-                  ) : (
-                    <DownloadIcon />
-                  )}
-                </IconButton>
-              </ListItemSecondaryAction>
             </ListItem>
           ))}
         </List>

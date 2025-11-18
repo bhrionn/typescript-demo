@@ -23,6 +23,7 @@ import {
   InsertDriveFile as FileIcon,
 } from '@mui/icons-material';
 import type { IFileUploadService, UploadProgress } from '../../services/IFileUploadService';
+import { announceToScreenReader } from '../../utils/accessibility';
 
 interface FileUploadFormProps {
   uploadService: IFileUploadService;
@@ -61,14 +62,17 @@ export const FileUploadForm: React.FC<FileUploadFormProps> = ({
       // Validate file
       const validation = uploadService.validateFile(file);
       if (!validation.isValid) {
-        setError(validation.errors.join(', '));
+        const errorMsg = validation.errors.join(', ');
+        setError(errorMsg);
         setSelectedFile(null);
+        announceToScreenReader(`File validation failed: ${errorMsg}`, 'assertive');
         return;
       }
 
       setSelectedFile(file);
       setError(null);
       setSuccess(null);
+      announceToScreenReader(`File selected: ${file.name}`, 'polite');
     },
     [uploadService]
   );
@@ -125,10 +129,15 @@ export const FileUploadForm: React.FC<FileUploadFormProps> = ({
       const result = await uploadService.uploadFile(selectedFile, undefined, {
         next: (progress: UploadProgress) => {
           setUploadProgress(progress.percentage);
+          // Announce progress at 25%, 50%, 75%, and 100%
+          if (progress.percentage % 25 === 0) {
+            announceToScreenReader(`Upload progress: ${progress.percentage}%`, 'polite');
+          }
         },
         error: (err: Error) => {
           setError(err.message);
           setIsUploading(false);
+          announceToScreenReader(`Upload failed: ${err.message}`, 'assertive');
           onUploadError?.(err);
         },
         complete: () => {
@@ -136,9 +145,11 @@ export const FileUploadForm: React.FC<FileUploadFormProps> = ({
         },
       });
 
-      setSuccess(`File uploaded successfully! File ID: ${result.fileId}`);
+      const successMsg = `File uploaded successfully! File ID: ${result.fileId}`;
+      setSuccess(successMsg);
       setSelectedFile(null);
       setUploadProgress(0);
+      announceToScreenReader('File uploaded successfully', 'polite');
       onUploadSuccess?.(result.fileId);
 
       // Reset file input
@@ -191,10 +202,20 @@ export const FileUploadForm: React.FC<FileUploadFormProps> = ({
 
       {/* Drag and Drop Area */}
       <Box
+        role="button"
+        tabIndex={0}
+        aria-label="File upload area. Drag and drop a file here, or press Enter to browse"
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
         onDrop={handleDrop}
+        onClick={handleBrowseClick}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleBrowseClick();
+          }
+        }}
         sx={{
           border: '2px dashed',
           borderColor: isDragging ? 'primary.main' : 'grey.300',
@@ -208,10 +229,14 @@ export const FileUploadForm: React.FC<FileUploadFormProps> = ({
             borderColor: 'primary.main',
             bgcolor: 'action.hover',
           },
+          '&:focus-visible': {
+            outline: '2px solid',
+            outlineColor: 'primary.main',
+            outlineOffset: '2px',
+          },
         }}
-        onClick={handleBrowseClick}
       >
-        <UploadIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
+        <UploadIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} aria-hidden="true" />
         <Typography variant="body1" gutterBottom>
           Drag and drop a file here, or click to browse
         </Typography>
@@ -230,6 +255,7 @@ export const FileUploadForm: React.FC<FileUploadFormProps> = ({
         onChange={handleFileInputChange}
         style={{ display: 'none' }}
         accept={uploadService.getSupportedFileTypes().join(',')}
+        aria-label="File input"
       />
 
       {/* Selected File Preview */}
@@ -256,13 +282,19 @@ export const FileUploadForm: React.FC<FileUploadFormProps> = ({
 
       {/* Upload Progress */}
       {isUploading && (
-        <Box sx={{ mt: 2 }}>
+        <Box sx={{ mt: 2 }} role="status" aria-live="polite" aria-atomic="true">
           <Stack spacing={1}>
             <Stack direction="row" justifyContent="space-between">
               <Typography variant="body2">Uploading...</Typography>
-              <Typography variant="body2">{uploadProgress}%</Typography>
+              <Typography variant="body2" aria-label={`Upload progress: ${uploadProgress} percent`}>
+                {uploadProgress}%
+              </Typography>
             </Stack>
-            <LinearProgress variant="determinate" value={uploadProgress} />
+            <LinearProgress
+              variant="determinate"
+              value={uploadProgress}
+              aria-label="Upload progress bar"
+            />
           </Stack>
         </Box>
       )}
@@ -289,6 +321,7 @@ export const FileUploadForm: React.FC<FileUploadFormProps> = ({
           onClick={handleUpload}
           disabled={!selectedFile || isUploading}
           fullWidth
+          aria-label={isUploading ? 'Uploading file, please wait' : 'Upload selected file'}
         >
           {isUploading ? 'Uploading...' : 'Upload File'}
         </Button>

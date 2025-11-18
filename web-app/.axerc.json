@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "color-contrast": { "enabled": true },
+    "valid-lang": { "enabled": true },
+    "html-has-lang": { "enabled": true },
+    "document-title": { "enabled": true },
+    "landmark-one-main": { "enabled": true },
+    "page-has-heading-one": { "enabled": true },
+    "region": { "enabled": true },
+    "bypass": { "enabled": true },
+    "aria-allowed-attr": { "enabled": true },
+    "aria-required-attr": { "enabled": true },
+    "aria-valid-attr": { "enabled": true },
+    "aria-valid-attr-value": { "enabled": true },
+    "button-name": { "enabled": true },
+    "image-alt": { "enabled": true },
+    "input-button-name": { "enabled": true },
+    "label": { "enabled": true },
+    "link-name": { "enabled": true },
+    "list": { "enabled": true },
+    "listitem": { "enabled": true }
+  }
+}

@@ -184,10 +184,13 @@ export const ToastProvider: React.FC<IToastProviderProps> = ({
             severity={toast.type as AlertColor}
             variant="filled"
             onClose={() => hideToast(toast.id)}
+            role="alert"
+            aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
+            aria-atomic="true"
             action={
               <IconButton
                 size="small"
-                aria-label="close"
+                aria-label={`Close ${toast.type} notification`}
                 color="inherit"
                 onClick={() => hideToast(toast.id)}
               >

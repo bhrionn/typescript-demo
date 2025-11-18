@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { AuthProvider } from './contexts';
@@ -8,6 +8,7 @@ import { ErrorBoundary } from './components/layout';
 import { LoginPage, DashboardPage } from './pages';
 import { ErrorHandlerProvider } from './contexts/ErrorHandlerContext';
 import { AuthService, ApiClient } from './services';
+import { createSkipLink } from './utils/accessibility';
 
 /**
  * Material-UI theme configuration
@@ -31,6 +32,18 @@ const AppContent: React.FC = () => {
   // Create services that depend on auth context
   const authService = useMemo(() => new AuthService(), []);
   const apiClient = useMemo(() => new ApiClient(authService), [authService]);
+
+  // Add skip link for keyboard navigation
+  useEffect(() => {
+    const skipLink = createSkipLink('main-content', 'Skip to main content');
+    document.body.insertBefore(skipLink, document.body.firstChild);
+
+    return () => {
+      if (skipLink.parentNode) {
+        skipLink.parentNode.removeChild(skipLink);
+      }
+    };
+  }, []);
 
   return (
     <ErrorHandlerProvider apiClient={apiClient}>
