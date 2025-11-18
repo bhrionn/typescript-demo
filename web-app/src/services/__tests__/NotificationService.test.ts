@@ -13,8 +13,13 @@ describe('NotificationService', () => {
   beforeEach(() => {
     mockToastContext = {
       showToast: jest.fn(),
+      showSuccess: jest.fn(),
+      showError: jest.fn(),
+      showWarning: jest.fn(),
+      showInfo: jest.fn(),
+      hideToast: jest.fn(),
       hideAllToasts: jest.fn(),
-    };
+    } as jest.Mocked<IToastContext>;
 
     notificationService = new NotificationService(mockToastContext);
   });

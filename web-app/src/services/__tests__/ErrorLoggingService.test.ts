@@ -33,12 +33,14 @@ describe('ErrorLoggingService', () => {
 
   beforeEach(() => {
     mockApiClient = {
+      uploadFile: jest.fn(),
+      getUserFiles: jest.fn(),
+      getFileMetadata: jest.fn(),
+      getPresignedUrl: jest.fn(),
       post: jest.fn().mockResolvedValue({ data: {} }),
       get: jest.fn(),
       put: jest.fn(),
       delete: jest.fn(),
-      setAuthToken: jest.fn(),
-      clearAuthToken: jest.fn(),
     } as jest.Mocked<IApiClient>;
 
     errorLoggingService = new ErrorLoggingService(mockApiClient);
@@ -141,8 +143,13 @@ describe('ErrorLoggingService', () => {
     });
 
     it('should sanitize stack trace in production', async () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
+      // Mock NODE_ENV by temporarily replacing it
+      const originalNodeEnv = Object.getOwnPropertyDescriptor(process.env, 'NODE_ENV');
+      Object.defineProperty(process.env, 'NODE_ENV', {
+        value: 'production',
+        writable: true,
+        configurable: true,
+      });
 
       const error = new Error('Test error');
       error.stack = Array(20).fill('at Test (file.ts:1:1)').join('\n');
@@ -153,7 +160,10 @@ describe('ErrorLoggingService', () => {
       const stackLines = logEntry.stack?.split('\n').length || 0;
       expect(stackLines).toBeLessThanOrEqual(10);
 
-      process.env.NODE_ENV = originalEnv;
+      // Restore original NODE_ENV
+      if (originalNodeEnv) {
+        Object.defineProperty(process.env, 'NODE_ENV', originalNodeEnv);
+      }
     });
   });
 
