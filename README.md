@@ -254,6 +254,39 @@ All code follows SOLID design principles:
 - `npm run docker:ps` - Show running containers
 - `npm run docker:wait` - Wait for services to be healthy
 
+## Integration Testing
+
+Comprehensive end-to-end integration testing documentation and tools are available:
+
+### Quick Start
+
+Run automated integration tests:
+
+```bash
+./run-integration-tests.sh dev
+```
+
+### Documentation
+
+- **[Integration Testing Guide](INTEGRATION_TESTING_GUIDE.md)** - Complete testing procedures
+- **[Automated Test Script](run-integration-tests.sh)** - Automated verification
+- **[Test Report Template](INTEGRATION_TEST_REPORT_TEMPLATE.md)** - Document test results
+- **[Manual Testing Checklist](MANUAL_TESTING_CHECKLIST.md)** - Quick reference for manual tests
+- **[Testing README](INTEGRATION_TESTING_README.md)** - Overview of all testing resources
+
+### What's Tested
+
+- ✅ Federated authentication (Google, Microsoft)
+- ✅ File upload and storage (S3)
+- ✅ Database operations (RDS)
+- ✅ API functionality
+- ✅ Security controls (WAF, NACLs, Security Groups)
+- ✅ Network isolation (VPC)
+- ✅ Encryption (at rest and in transit)
+- ✅ Monitoring and logging
+
+See [INTEGRATION_TESTING_README.md](INTEGRATION_TESTING_README.md) for complete details.
+
 ## CI/CD Pipeline
 
 This project uses GitHub Actions for continuous integration and deployment. See [CI/CD Documentation](.github/workflows/README.md) for details.
