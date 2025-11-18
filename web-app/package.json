@@ -8,6 +8,11 @@
     "type-check": "tsc --noEmit",
     "test": "react-scripts test --watchAll=false --passWithNoTests",
     "test:watch": "react-scripts test",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "playwright:install": "playwright install",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --no-error-on-unmatched-pattern",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix --no-error-on-unmatched-pattern",
     "format": "prettier --write \"src/**/*.{ts,tsx,json,css,md}\""
@@ -24,6 +29,7 @@
     "react-router-dom": "^6.20.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.56.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",

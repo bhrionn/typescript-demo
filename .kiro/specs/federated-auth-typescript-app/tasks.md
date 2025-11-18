@@ -319,7 +319,7 @@
   - Test with accessibility tools (axe, Lighthouse)
   - _Requirements: 9.3_
 
-- [ ]\* 30. Write E2E tests for critical user flows
+- [x] 30. Write E2E tests for critical user flows
   - Set up Playwright for E2E testing
   - Write test for login flow with mock Cognito
   - Write test for file upload and retrieval flow
