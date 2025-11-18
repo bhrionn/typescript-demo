@@ -337,7 +337,7 @@
   - Validate IAM roles follow least privilege
   - _Requirements: 8.1, 8.2, 8.3, 8.6, 8.7, 8.8, 8.9, 8.12_
 
-- [ ] 32. Configure CI/CD pipeline
+- [x] 32. Configure CI/CD pipeline
   - Create GitHub Actions or similar CI/CD workflow
   - Add linting and type checking steps
   - Add unit test execution

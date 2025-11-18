@@ -1,0 +1,43 @@
+# CODEOWNERS file
+# These owners will be the default owners for everything in the repo.
+# Unless a later match takes precedence, these owners will be requested for
+# review when someone opens a pull request.
+
+# Global owners
+* @YOUR_TEAM
+
+# Web application
+/web-app/ @YOUR_TEAM @frontend-team
+
+# API and Lambda functions
+/api/ @YOUR_TEAM @backend-team
+
+# Infrastructure
+/infrastructure/ @YOUR_TEAM @devops-team @infrastructure-team
+
+# CI/CD workflows
+/.github/workflows/ @YOUR_TEAM @devops-team
+
+# Docker configuration
+/docker/ @YOUR_TEAM @devops-team
+/docker-compose.yml @YOUR_TEAM @devops-team
+
+# Security-related files
+/.github/workflows/security-scan.yml @YOUR_TEAM @security-team
+/infrastructure/scripts/validate-security.* @YOUR_TEAM @security-team
+
+# Documentation
+*.md @YOUR_TEAM @documentation-team
+/docs/ @YOUR_TEAM @documentation-team
+
+# Configuration files
+/.eslintrc.json @YOUR_TEAM
+/.prettierrc.json @YOUR_TEAM
+/tsconfig*.json @YOUR_TEAM
+
+# Package files (require careful review)
+package.json @YOUR_TEAM
+package-lock.json @YOUR_TEAM
+/web-app/package*.json @YOUR_TEAM @frontend-team
+/api/package*.json @YOUR_TEAM @backend-team
+/infrastructure/package*.json @YOUR_TEAM @devops-team

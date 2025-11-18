@@ -1,0 +1,216 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy'
+        required: true
+        type: string
+
+env:
+  AWS_REGION: us-east-1
+  ENVIRONMENT: prod
+
+jobs:
+  approval:
+    name: Manual Approval Required
+    runs-on: ubuntu-latest
+    environment:
+      name: production-approval
+    steps:
+      - name: Approval checkpoint
+        run: echo "Manual approval granted for production deployment"
+
+  deploy:
+    name: Deploy to Production Environment
+    runs-on: ubuntu-latest
+    needs: approval
+    environment:
+      name: production
+      url: https://example.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install infrastructure dependencies
+        working-directory: infrastructure
+        run: npm ci
+
+      - name: Build infrastructure
+        working-directory: infrastructure
+        run: npm run build
+
+      - name: CDK Bootstrap (if needed)
+        working-directory: infrastructure
+        run: npx cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID_PROD }}/${{ env.AWS_REGION }}
+
+      - name: CDK Diff
+        working-directory: infrastructure
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID_PROD }}
+        run: npx cdk diff --all
+
+      - name: Create backup of current deployment
+        run: |
+          echo "Creating backup of current production state..."
+          aws s3 sync s3://${{ secrets.WEB_BUCKET_NAME_PROD }} s3://${{ secrets.WEB_BUCKET_NAME_PROD }}-backup-$(date +%Y%m%d-%H%M%S)/ --delete
+
+      - name: CDK Deploy
+        working-directory: infrastructure
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID_PROD }}
+        run: npx cdk deploy --all --require-approval never
+
+      - name: Get CloudFront Distribution ID
+        id: get-distribution
+        run: |
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+            --stack-name typescript-demo-prod-cdn-stack \
+            --query "Stacks[0].Outputs[?OutputKey=='DistributionId'].OutputValue" \
+            --output text)
+          echo "distribution_id=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
+
+      - name: Build web application
+        working-directory: web-app
+        env:
+          REACT_APP_API_URL: ${{ secrets.API_URL_PROD }}
+          REACT_APP_COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID_PROD }}
+          REACT_APP_COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID_PROD }}
+          REACT_APP_COGNITO_DOMAIN: ${{ secrets.COGNITO_DOMAIN_PROD }}
+          NODE_ENV: production
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy web app to S3
+        run: |
+          aws s3 sync web-app/build/ s3://${{ secrets.WEB_BUCKET_NAME_PROD }} --delete --cache-control "public, max-age=31536000, immutable"
+
+      - name: Invalidate CloudFront cache
+        if: steps.get-distribution.outputs.distribution_id != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.get-distribution.outputs.distribution_id }} \
+            --paths "/*"
+
+      - name: Build and deploy Lambda functions
+        working-directory: api
+        run: |
+          npm ci --production
+          npm run build
+
+      - name: Package Lambda functions
+        working-directory: api
+        run: |
+          mkdir -p lambda-packages
+          cd dist
+          zip -r ../lambda-packages/handlers.zip .
+          cd ../node_modules
+          zip -r ../lambda-packages/dependencies.zip .
+
+      - name: Update Lambda functions with versioning
+        working-directory: api
+        run: |
+          for function in $(aws lambda list-functions --query "Functions[?starts_with(FunctionName, 'typescript-demo-prod')].FunctionName" --output text); do
+            echo "Updating $function"
+            aws lambda update-function-code \
+              --function-name $function \
+              --zip-file fileb://lambda-packages/handlers.zip
+            
+            # Publish new version
+            VERSION=$(aws lambda publish-version --function-name $function --query 'Version' --output text)
+            echo "Published version $VERSION for $function"
+            
+            # Update alias to point to new version
+            aws lambda update-alias \
+              --function-name $function \
+              --name live \
+              --function-version $VERSION || \
+            aws lambda create-alias \
+              --function-name $function \
+              --name live \
+              --function-version $VERSION
+          done
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against production environment..."
+          curl -f ${{ secrets.API_URL_PROD }}/health || exit 1
+
+      - name: Run production health checks
+        run: |
+          echo "Running comprehensive health checks..."
+          # Check API Gateway
+          curl -f ${{ secrets.API_URL_PROD }}/health || exit 1
+          
+          # Check CloudFront
+          curl -f https://example.com || exit 1
+          
+          echo "All health checks passed"
+
+      - name: Create deployment tag
+        run: |
+          git tag -a "prod-${{ github.event.inputs.version }}-$(date +%Y%m%d-%H%M%S)" -m "Production deployment of ${{ github.event.inputs.version }}"
+          git push origin --tags
+
+      - name: Notify deployment status
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Production deployment ${{ job.status }} - Version: ${{ github.event.inputs.version }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: deploy
+    if: failure()
+    
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_PROD }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_PROD }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Rollback Lambda functions
+        run: |
+          for function in $(aws lambda list-functions --query "Functions[?starts_with(FunctionName, 'typescript-demo-prod')].FunctionName" --output text); do
+            echo "Rolling back $function"
+            PREVIOUS_VERSION=$(aws lambda list-versions-by-function --function-name $function --query 'Versions[-2].Version' --output text)
+            aws lambda update-alias \
+              --function-name $function \
+              --name live \
+              --function-version $PREVIOUS_VERSION
+          done
+
+      - name: Notify rollback
+        uses: 8398a7/action-slack@v3
+        with:
+          status: 'failure'
+          text: 'Production deployment failed - Rollback initiated'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

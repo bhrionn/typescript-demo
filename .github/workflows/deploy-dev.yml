@@ -1,0 +1,124 @@
+name: Deploy to Development
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ENVIRONMENT: dev
+
+jobs:
+  deploy:
+    name: Deploy to Dev Environment
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+      url: https://dev.example.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install infrastructure dependencies
+        working-directory: infrastructure
+        run: npm ci
+
+      - name: Build infrastructure
+        working-directory: infrastructure
+        run: npm run build
+
+      - name: CDK Bootstrap (if needed)
+        working-directory: infrastructure
+        run: npx cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID_DEV }}/${{ env.AWS_REGION }}
+
+      - name: CDK Deploy
+        working-directory: infrastructure
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID_DEV }}
+        run: npx cdk deploy --all --require-approval never
+
+      - name: Get CloudFront Distribution ID
+        id: get-distribution
+        run: |
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+            --stack-name typescript-demo-dev-cdn-stack \
+            --query "Stacks[0].Outputs[?OutputKey=='DistributionId'].OutputValue" \
+            --output text)
+          echo "distribution_id=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
+
+      - name: Build web application
+        working-directory: web-app
+        env:
+          REACT_APP_API_URL: ${{ secrets.API_URL_DEV }}
+          REACT_APP_COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID_DEV }}
+          REACT_APP_COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID_DEV }}
+          REACT_APP_COGNITO_DOMAIN: ${{ secrets.COGNITO_DOMAIN_DEV }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy web app to S3
+        run: |
+          aws s3 sync web-app/build/ s3://${{ secrets.WEB_BUCKET_NAME_DEV }} --delete
+
+      - name: Invalidate CloudFront cache
+        if: steps.get-distribution.outputs.distribution_id != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.get-distribution.outputs.distribution_id }} \
+            --paths "/*"
+
+      - name: Build and deploy Lambda functions
+        working-directory: api
+        run: |
+          npm ci
+          npm run build
+
+      - name: Package Lambda functions
+        working-directory: api
+        run: |
+          mkdir -p lambda-packages
+          cd dist
+          zip -r ../lambda-packages/handlers.zip .
+          cd ../node_modules
+          zip -r ../lambda-packages/dependencies.zip .
+
+      - name: Update Lambda functions
+        working-directory: api
+        run: |
+          for function in $(aws lambda list-functions --query "Functions[?starts_with(FunctionName, 'typescript-demo-dev')].FunctionName" --output text); do
+            echo "Updating $function"
+            aws lambda update-function-code \
+              --function-name $function \
+              --zip-file fileb://lambda-packages/handlers.zip
+          done
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against dev environment..."
+          curl -f ${{ secrets.API_URL_DEV }}/health || exit 1
+
+      - name: Notify deployment status
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Development deployment ${{ job.status }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

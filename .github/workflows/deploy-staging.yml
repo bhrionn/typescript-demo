@@ -1,0 +1,147 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ENVIRONMENT: staging
+
+jobs:
+  deploy:
+    name: Deploy to Staging Environment
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.example.com
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Install infrastructure dependencies
+        working-directory: infrastructure
+        run: npm ci
+
+      - name: Build infrastructure
+        working-directory: infrastructure
+        run: npm run build
+
+      - name: CDK Bootstrap (if needed)
+        working-directory: infrastructure
+        run: npx cdk bootstrap aws://${{ secrets.AWS_ACCOUNT_ID_STAGING }}/${{ env.AWS_REGION }}
+
+      - name: CDK Diff
+        working-directory: infrastructure
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID_STAGING }}
+        run: npx cdk diff --all
+
+      - name: CDK Deploy
+        working-directory: infrastructure
+        env:
+          ENVIRONMENT: ${{ env.ENVIRONMENT }}
+          AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT_ID_STAGING }}
+        run: npx cdk deploy --all --require-approval never
+
+      - name: Get CloudFront Distribution ID
+        id: get-distribution
+        run: |
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+            --stack-name typescript-demo-staging-cdn-stack \
+            --query "Stacks[0].Outputs[?OutputKey=='DistributionId'].OutputValue" \
+            --output text)
+          echo "distribution_id=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
+
+      - name: Build web application
+        working-directory: web-app
+        env:
+          REACT_APP_API_URL: ${{ secrets.API_URL_STAGING }}
+          REACT_APP_COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID_STAGING }}
+          REACT_APP_COGNITO_CLIENT_ID: ${{ secrets.COGNITO_CLIENT_ID_STAGING }}
+          REACT_APP_COGNITO_DOMAIN: ${{ secrets.COGNITO_DOMAIN_STAGING }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Deploy web app to S3
+        run: |
+          aws s3 sync web-app/build/ s3://${{ secrets.WEB_BUCKET_NAME_STAGING }} --delete
+
+      - name: Invalidate CloudFront cache
+        if: steps.get-distribution.outputs.distribution_id != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.get-distribution.outputs.distribution_id }} \
+            --paths "/*"
+
+      - name: Build and deploy Lambda functions
+        working-directory: api
+        run: |
+          npm ci
+          npm run build
+
+      - name: Package Lambda functions
+        working-directory: api
+        run: |
+          mkdir -p lambda-packages
+          cd dist
+          zip -r ../lambda-packages/handlers.zip .
+          cd ../node_modules
+          zip -r ../lambda-packages/dependencies.zip .
+
+      - name: Update Lambda functions
+        working-directory: api
+        run: |
+          for function in $(aws lambda list-functions --query "Functions[?starts_with(FunctionName, 'typescript-demo-staging')].FunctionName" --output text); do
+            echo "Updating $function"
+            aws lambda update-function-code \
+              --function-name $function \
+              --zip-file fileb://lambda-packages/handlers.zip
+          done
+
+      - name: Run smoke tests
+        run: |
+          echo "Running smoke tests against staging environment..."
+          curl -f ${{ secrets.API_URL_STAGING }}/health || exit 1
+
+      - name: Run E2E tests
+        working-directory: web-app
+        env:
+          PLAYWRIGHT_BASE_URL: https://staging.example.com
+        run: |
+          npm ci
+          npx playwright install --with-deps
+          npx playwright test
+
+      - name: Upload E2E test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: web-app/playwright-report/
+
+      - name: Notify deployment status
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Staging deployment ${{ job.status }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}

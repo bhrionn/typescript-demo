@@ -1,5 +1,10 @@
 # Federated Auth TypeScript Application
 
+[![CI Pipeline](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/ci.yml)
+[![Security Scan](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/security-scan.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/security-scan.yml)
+[![Deploy to Dev](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/deploy-dev.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/deploy-dev.yml)
+[![Deploy to Staging](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/deploy-staging.yml/badge.svg)](https://github.com/YOUR_USERNAME/YOUR_REPO/actions/workflows/deploy-staging.yml)
+
 A modern, enterprise-grade TypeScript application demonstrating federated authentication with comprehensive AWS cloud infrastructure. The system enables users to authenticate via Google or Microsoft accounts and securely upload files through a React-based web interface.
 
 ## Project Structure
@@ -249,11 +254,28 @@ All code follows SOLID design principles:
 - `npm run docker:ps` - Show running containers
 - `npm run docker:wait` - Wait for services to be healthy
 
+## CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and deployment. See [CI/CD Documentation](.github/workflows/README.md) for details.
+
+### Workflows
+
+- **CI Pipeline**: Runs on all PRs and pushes - linting, type checking, tests, security scans
+- **Security Scanning**: Daily security scans and vulnerability checks
+- **Deploy to Development**: Automatic deployment on push to `develop` branch
+- **Deploy to Staging**: Automatic deployment on push to `main` branch
+- **Deploy to Production**: Manual deployment with approval required
+
+### Deployment Guide
+
+See [Deployment Guide](.github/DEPLOYMENT_GUIDE.md) for detailed deployment instructions and troubleshooting.
+
 ## Next Steps
 
 1. Review the requirements document: `.kiro/specs/federated-auth-typescript-app/requirements.md`
 2. Review the design document: `.kiro/specs/federated-auth-typescript-app/design.md`
 3. Follow the implementation tasks: `.kiro/specs/federated-auth-typescript-app/tasks.md`
+4. Configure GitHub secrets for CI/CD: [CI/CD Setup](.github/workflows/README.md#setup-instructions)
 
 ## License
 
