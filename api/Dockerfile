@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for api
 
 # Stage 1: Development
-FROM node:20-alpine AS development
+FROM node:25-alpine AS development
 
 WORKDIR /app
 
@@ -19,7 +19,7 @@ EXPOSE 4000
 CMD ["npm", "run", "dev"]
 
 # Stage 2: Build
-FROM node:20-alpine AS build
+FROM node:25-alpine AS build
 
 WORKDIR /app
 
@@ -37,7 +37,7 @@ COPY src ./src
 RUN npm run build
 
 # Stage 3: Production
-FROM node:20-alpine AS production
+FROM node:25-alpine AS production
 
 WORKDIR /app
 
