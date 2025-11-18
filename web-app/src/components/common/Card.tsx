@@ -66,6 +66,11 @@ export interface ICardProps extends IBaseComponent {
    * Click handler for the entire card
    */
   onClick?: () => void;
+
+  /**
+   * ARIA label for accessibility
+   */
+  ariaLabel?: string;
 }
 
 /**
@@ -86,6 +91,7 @@ export const Card: React.FC<ICardProps> = ({
   className,
   testId,
   disabled = false,
+  ariaLabel,
 }) => {
   return (
     <MuiCard
@@ -94,10 +100,30 @@ export const Card: React.FC<ICardProps> = ({
       onClick={onClick}
       className={className}
       data-testid={testId}
+      role={onClick ? 'button' : 'article'}
+      aria-label={ariaLabel || title}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={
+        onClick
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onClick();
+              }
+            }
+          : undefined
+      }
       sx={{
         cursor: onClick ? 'pointer' : 'default',
         opacity: disabled ? 0.6 : 1,
         pointerEvents: disabled ? 'none' : 'auto',
+        '&:focus-visible': onClick
+          ? {
+              outline: '2px solid',
+              outlineColor: 'primary.main',
+              outlineOffset: '2px',
+            }
+          : undefined,
       }}
     >
       {(title || subtitle || headerAction) && (
