@@ -188,6 +188,28 @@ Tests include:
 - Fine-grained assertions for security configurations
 - Resource property validation
 
+### Security Validation
+
+Run comprehensive security validation:
+
+```bash
+npm run validate:security
+```
+
+This validates all security checklist items including:
+
+- S3 bucket policies prevent public access
+- RDS is in private subnets only
+- Encryption settings for S3 and RDS
+- IAM roles follow least privilege
+- Security group rules are properly configured
+- WAF rules are enabled
+- VPC and network configuration
+
+See [scripts/README.md](scripts/README.md) for detailed documentation on security validation.
+
+**Requirements:** 8.1, 8.2, 8.3, 8.6, 8.7, 8.8, 8.9, 8.12
+
 ## Naming Convention
 
 Resources follow this naming pattern:

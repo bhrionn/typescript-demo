@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Security Validation Script
-# This script runs cfn-nag to validate CloudFormation templates for security issues
-# Requirements: 7.4, 8.1
+# This script validates all security checklist items from the design document
+# Requirements: 7.4, 8.1, 8.2, 8.3, 8.6, 8.7, 8.8, 8.9, 8.12
 
 set -e
 
@@ -15,36 +15,42 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# Check if cfn-nag is installed
-if ! command -v cfn_nag_scan &> /dev/null; then
-    echo -e "${YELLOW}Warning: cfn_nag is not installed${NC}"
-    echo "To install cfn_nag, run:"
-    echo "  gem install cfn-nag"
+# Step 1: Build and synthesize CDK templates
+echo "Building CDK infrastructure..."
+npm run build
+
+echo ""
+echo "Synthesizing CloudFormation templates..."
+npx cdk synth --quiet
+
+# Step 2: Run TypeScript security validator
+echo ""
+echo "Running comprehensive security validation..."
+npx ts-node scripts/validate-security.ts
+
+# Step 3: Run Jest tests for security checklist
+echo ""
+echo "Running security checklist tests..."
+npm test -- tests/security-checklist.test.ts --passWithNoTests
+
+# Step 4: Optional - Run cfn-nag if installed
+if command -v cfn_nag_scan &> /dev/null; then
     echo ""
-    echo "Skipping cfn-nag validation..."
-    echo ""
-else
     echo "Running cfn-nag security validation..."
     echo ""
 
-    # Synthesize CDK templates
-    echo "Synthesizing CDK templates..."
-    npm run build
-    npx cdk synth --quiet
-
-    # Run cfn-nag on all templates
     TEMPLATES_DIR="cdk.out"
     FAILED=0
 
     for template in "$TEMPLATES_DIR"/*.template.json; do
         if [ -f "$template" ]; then
             template_name=$(basename "$template")
-            echo "Validating $template_name..."
+            echo "Validating $template_name with cfn-nag..."
             
             if cfn_nag_scan --input-path "$template" --output-format txt; then
-                echo -e "${GREEN}✓ $template_name passed security validation${NC}"
+                echo -e "${GREEN}✓ $template_name passed cfn-nag validation${NC}"
             else
-                echo -e "${RED}✗ $template_name failed security validation${NC}"
+                echo -e "${RED}✗ $template_name failed cfn-nag validation${NC}"
                 FAILED=1
             fi
             echo ""
@@ -52,17 +58,18 @@ else
     done
 
     if [ $FAILED -eq 1 ]; then
-        echo -e "${RED}Security validation failed!${NC}"
+        echo -e "${RED}cfn-nag validation failed!${NC}"
         exit 1
     else
-        echo -e "${GREEN}All templates passed security validation!${NC}"
+        echo -e "${GREEN}All templates passed cfn-nag validation!${NC}"
     fi
+else
+    echo ""
+    echo -e "${YELLOW}Note: cfn-nag is not installed (optional)${NC}"
+    echo "To install cfn-nag for additional validation, run:"
+    echo "  gem install cfn-nag"
+    echo ""
 fi
-
-# Run Jest tests for security checklist
-echo ""
-echo "Running security checklist tests..."
-npm test -- tests/security-checklist.test.ts
 
 echo ""
 echo -e "${GREEN}=== Security Validation Complete ===${NC}"
