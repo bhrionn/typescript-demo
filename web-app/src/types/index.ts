@@ -13,3 +13,21 @@ export type {
   ApiErrorResponse,
   ApiResponse,
 } from './api';
+
+// Error types
+export {
+  AppError,
+  AuthenticationError as AppAuthenticationError,
+  ValidationError,
+  NetworkError,
+  NotFoundError,
+  ForbiddenError,
+  FileUploadError as AppFileUploadError,
+  SessionExpiredError,
+  RateLimitError,
+  ServerError,
+  ConfigurationError,
+  isAppError,
+  isOperationalError,
+  toAppError,
+} from '../utils/errors';

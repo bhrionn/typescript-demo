@@ -18,3 +18,16 @@ export type {
   ProgressObserver,
 } from './IFileUploadService';
 export { FileUploadService, FileUploadError } from './FileUploadService';
+
+export type {
+  INotificationService,
+  NotificationOptions,
+  NotificationType,
+} from './INotificationService';
+export { NotificationService } from './NotificationService';
+
+export type { IErrorLoggingService, ErrorLogEntry } from './IErrorLoggingService';
+export { ErrorLoggingService } from './ErrorLoggingService';
+
+export type { ErrorHandlingOptions } from './ErrorHandler';
+export { ErrorHandler } from './ErrorHandler';

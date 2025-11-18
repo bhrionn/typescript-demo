@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import { AuthProvider } from './contexts';
@@ -6,6 +6,8 @@ import { ToastProvider } from './components/common/Toast';
 import { ProtectedRoute, SessionExpirationHandler } from './components/auth';
 import { ErrorBoundary } from './components/layout';
 import { LoginPage, DashboardPage } from './pages';
+import { ErrorHandlerProvider } from './contexts/ErrorHandlerContext';
+import { AuthService, ApiClient } from './services';
 
 /**
  * Material-UI theme configuration
@@ -22,49 +24,53 @@ const theme = createTheme({
 });
 
 /**
- * Error handler for ErrorBoundary
- * Logs errors to console (in production, would send to monitoring service)
+ * App Content Component
+ * Contains the routing and requires auth context
  */
-const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
-  // Log to console in development
-  console.error('Application error:', error, errorInfo);
+const AppContent: React.FC = () => {
+  // Create services that depend on auth context
+  const authService = useMemo(() => new AuthService(), []);
+  const apiClient = useMemo(() => new ApiClient(authService), [authService]);
 
-  // In production, send to error monitoring service
-  // Example: logErrorToService(error, errorInfo);
+  return (
+    <ErrorHandlerProvider apiClient={apiClient}>
+      <BrowserRouter>
+        <SessionExpirationHandler>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<LoginPage />} />
+
+            {/* Protected routes */}
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Catch all - redirect to home */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </SessionExpirationHandler>
+      </BrowserRouter>
+    </ErrorHandlerProvider>
+  );
 };
 
 /**
  * Main Application Component
- * Sets up routing and global providers with error boundary
+ * Sets up global providers with error boundary
  */
 const App: React.FC = () => {
   return (
-    <ErrorBoundary onError={handleError}>
+    <ErrorBoundary>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <ToastProvider>
           <AuthProvider>
-            <BrowserRouter>
-              <SessionExpirationHandler>
-                <Routes>
-                  {/* Public routes */}
-                  <Route path="/login" element={<LoginPage />} />
-
-                  {/* Protected routes */}
-                  <Route
-                    path="/"
-                    element={
-                      <ProtectedRoute>
-                        <DashboardPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* Catch all - redirect to home */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </SessionExpirationHandler>
-            </BrowserRouter>
+            <AppContent />
           </AuthProvider>
         </ToastProvider>
       </ThemeProvider>

@@ -4,3 +4,4 @@
  */
 
 export { AuthProvider, useAuth } from './AuthContext';
+export { ErrorHandlerProvider, useErrorHandler } from './ErrorHandlerContext';
