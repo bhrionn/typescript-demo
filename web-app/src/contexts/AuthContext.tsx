@@ -7,7 +7,14 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { IAuthService } from '../services/IAuthService';
 import { AuthService } from '../services/AuthService';
-import { AuthState, IdentityProvider } from '../types/auth';
+import {
+  AuthState,
+  IdentityProvider,
+  SignUpCredentials,
+  SignInCredentials,
+  SignUpResult,
+  ConfirmSignUpResult,
+} from '../types/auth';
 
 /**
  * Authentication context value interface
@@ -18,6 +25,10 @@ interface AuthContextValue extends AuthState {
   logout: () => Promise<void>;
   refreshToken: () => Promise<string>;
   getToken: () => Promise<string | null>;
+  signUp: (credentials: SignUpCredentials) => Promise<SignUpResult>;
+  signIn: (credentials: SignInCredentials) => Promise<void>;
+  confirmSignUp: (email: string, code: string) => Promise<ConfirmSignUpResult>;
+  resendConfirmationCode: (email: string) => Promise<void>;
 }
 
 /**
@@ -158,12 +169,114 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children, authServic
     return await service.getToken();
   }, [service]);
 
+  /**
+   * Signs up a new user with email and password
+   */
+  const signUp = useCallback(
+    async (credentials: SignUpCredentials): Promise<SignUpResult> => {
+      try {
+        setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+        const result = await service.signUp(credentials);
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
+        return result;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Sign up failed';
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: message,
+        }));
+        throw error;
+      }
+    },
+    [service]
+  );
+
+  /**
+   * Signs in a user with email and password
+   */
+  const signIn = useCallback(
+    async (credentials: SignInCredentials): Promise<void> => {
+      try {
+        setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+        await service.signIn(credentials);
+
+        // After successful sign in, fetch user data
+        const user = await service.getCurrentUser();
+        setAuthState({
+          isAuthenticated: true,
+          isLoading: false,
+          user,
+          error: null,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Sign in failed';
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: message,
+        }));
+        throw error;
+      }
+    },
+    [service]
+  );
+
+  /**
+   * Confirms a user's sign up with verification code
+   */
+  const confirmSignUp = useCallback(
+    async (email: string, code: string): Promise<ConfirmSignUpResult> => {
+      try {
+        setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+        const result = await service.confirmSignUp(email, code);
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
+        return result;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Confirmation failed';
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: message,
+        }));
+        throw error;
+      }
+    },
+    [service]
+  );
+
+  /**
+   * Resends the confirmation code to user's email
+   */
+  const resendConfirmationCode = useCallback(
+    async (email: string): Promise<void> => {
+      try {
+        setAuthState((prev) => ({ ...prev, isLoading: true, error: null }));
+        await service.resendConfirmationCode(email);
+        setAuthState((prev) => ({ ...prev, isLoading: false }));
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to resend code';
+        setAuthState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: message,
+        }));
+        throw error;
+      }
+    },
+    [service]
+  );
+
   const contextValue: AuthContextValue = {
     ...authState,
     login,
     logout,
     refreshToken,
     getToken,
+    signUp,
+    signIn,
+    confirmSignUp,
+    resendConfirmationCode,
   };
 
   return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;

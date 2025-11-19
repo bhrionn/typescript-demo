@@ -11,9 +11,21 @@ import {
   fetchAuthSession,
   getCurrentUser,
   fetchUserAttributes,
+  signUp as amplifySignUp,
+  signIn as amplifySignIn,
+  confirmSignUp as amplifyConfirmSignUp,
+  resendSignUpCode,
 } from 'aws-amplify/auth';
 import { IAuthService } from './IAuthService';
-import { IdentityProvider, User, AuthenticationError } from '../types/auth';
+import {
+  IdentityProvider,
+  User,
+  AuthenticationError,
+  SignUpCredentials,
+  SignInCredentials,
+  SignUpResult,
+  ConfirmSignUpResult,
+} from '../types/auth';
 import { environment } from '../config/environment';
 
 /**
@@ -163,6 +175,88 @@ export class AuthService implements IAuthService {
     } catch {
       // User not authenticated
       return null;
+    }
+  }
+
+  /**
+   * Signs up a new user with email and password
+   * @param credentials - The sign up credentials
+   * @returns Sign up result with confirmation status
+   */
+  async signUp(credentials: SignUpCredentials): Promise<SignUpResult> {
+    try {
+      const { isSignUpComplete, userId } = await amplifySignUp({
+        username: credentials.email,
+        password: credentials.password,
+        options: {
+          userAttributes: {
+            email: credentials.email,
+            ...(credentials.name && { name: credentials.name }),
+          },
+          autoSignIn: true,
+        },
+      });
+
+      return {
+        isConfirmed: isSignUpComplete,
+        userId,
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Sign up failed';
+      throw new AuthenticationError(message, 'SIGNUP_ERROR');
+    }
+  }
+
+  /**
+   * Signs in a user with email and password
+   * @param credentials - The sign in credentials
+   */
+  async signIn(credentials: SignInCredentials): Promise<void> {
+    try {
+      await amplifySignIn({
+        username: credentials.email,
+        password: credentials.password,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Sign in failed';
+      throw new AuthenticationError(message, 'SIGNIN_ERROR');
+    }
+  }
+
+  /**
+   * Confirms a user's sign up with verification code
+   * @param email - The user's email
+   * @param code - The confirmation code
+   * @returns Confirmation result
+   */
+  async confirmSignUp(email: string, code: string): Promise<ConfirmSignUpResult> {
+    try {
+      const { isSignUpComplete } = await amplifyConfirmSignUp({
+        username: email,
+        confirmationCode: code,
+      });
+
+      return {
+        isConfirmed: isSignUpComplete,
+      };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Confirmation failed';
+      throw new AuthenticationError(message, 'CONFIRM_ERROR');
+    }
+  }
+
+  /**
+   * Resends the confirmation code to user's email
+   * @param email - The user's email
+   */
+  async resendConfirmationCode(email: string): Promise<void> {
+    try {
+      await resendSignUpCode({
+        username: email,
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to resend confirmation code';
+      throw new AuthenticationError(message, 'RESEND_CODE_ERROR');
     }
   }
 }

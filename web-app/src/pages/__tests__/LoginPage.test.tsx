@@ -36,6 +36,10 @@ describe('LoginPage', () => {
       getCurrentUser: jest.fn(),
       getToken: jest.fn(),
       refreshToken: jest.fn(),
+      signUp: jest.fn(),
+      signIn: jest.fn(),
+      confirmSignUp: jest.fn(),
+      resendConfirmationCode: jest.fn(),
     } as jest.Mocked<IAuthService>;
 
     // Default: not authenticated

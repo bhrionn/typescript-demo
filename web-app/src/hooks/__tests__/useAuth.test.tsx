@@ -6,7 +6,14 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../../contexts/AuthContext';
 import { IAuthService } from '../../services/IAuthService';
-import { User, AuthenticationError } from '../../types/auth';
+import {
+  User,
+  AuthenticationError,
+  SignUpCredentials,
+  SignInCredentials,
+  SignUpResult,
+  ConfirmSignUpResult,
+} from '../../types/auth';
 import React from 'react';
 
 // Mock auth service for testing
@@ -51,6 +58,35 @@ class MockAuthService implements IAuthService {
 
   async getCurrentUser(): Promise<User | null> {
     return this.mockUser;
+  }
+
+  async signUp(credentials: SignUpCredentials): Promise<SignUpResult> {
+    return {
+      isConfirmed: false,
+      userId: 'new-user-' + credentials.email,
+    };
+  }
+
+  async signIn(credentials: SignInCredentials): Promise<void> {
+    if (credentials.email && credentials.password) {
+      this.mockIsAuthenticated = true;
+      this.mockUser = {
+        id: 'signed-in-user',
+        email: credentials.email,
+        provider: 'cognito',
+      };
+      this.mockToken = 'mock-token';
+    }
+  }
+
+  async confirmSignUp(_email: string, _code: string): Promise<ConfirmSignUpResult> {
+    return {
+      isConfirmed: true,
+    };
+  }
+
+  async resendConfirmationCode(_email: string): Promise<void> {
+    // Mock implementation
   }
 }
 
@@ -270,6 +306,255 @@ describe('useAuth Hook', () => {
     });
   });
 
+  describe('signUp', () => {
+    it('should call signUp on auth service', async () => {
+      const signUpSpy = jest.spyOn(mockAuthService, 'signUp');
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      const credentials: SignUpCredentials = {
+        email: 'newuser@example.com',
+        password: 'TestPassword123!',
+        name: 'New User',
+      };
+
+      await act(async () => {
+        const signUpResult = await result.current.signUp(credentials);
+        expect(signUpResult.isConfirmed).toBe(false);
+        expect(signUpResult.userId).toBe('new-user-newuser@example.com');
+      });
+
+      expect(signUpSpy).toHaveBeenCalledWith(credentials);
+    });
+
+    it('should handle signUp errors', async () => {
+      const signUpError = new AuthenticationError('User already exists', 'SIGNUP_ERROR');
+      jest.spyOn(mockAuthService, 'signUp').mockRejectedValueOnce(signUpError);
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      let caughtError: Error | undefined;
+      await act(async () => {
+        try {
+          await result.current.signUp({
+            email: 'existing@example.com',
+            password: 'TestPassword123!',
+          });
+        } catch (error) {
+          caughtError = error as Error;
+        }
+      });
+
+      expect(caughtError?.message).toBe('User already exists');
+      expect(result.current.error).toBe('User already exists');
+    });
+
+    it('should set loading state during signUp', async () => {
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      act(() => {
+        result.current.signUp({
+          email: 'test@example.com',
+          password: 'TestPassword123!',
+        });
+      });
+
+      expect(result.current.isLoading).toBe(true);
+    });
+  });
+
+  describe('signIn', () => {
+    it('should call signIn on auth service and update state', async () => {
+      const signInSpy = jest.spyOn(mockAuthService, 'signIn');
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      const credentials: SignInCredentials = {
+        email: 'user@example.com',
+        password: 'TestPassword123!',
+      };
+
+      await act(async () => {
+        await result.current.signIn(credentials);
+      });
+
+      expect(signInSpy).toHaveBeenCalledWith(credentials);
+      expect(result.current.isAuthenticated).toBe(true);
+      expect(result.current.user?.email).toBe('user@example.com');
+    });
+
+    it('should handle signIn errors', async () => {
+      const signInError = new AuthenticationError('Incorrect password', 'SIGNIN_ERROR');
+      jest.spyOn(mockAuthService, 'signIn').mockRejectedValueOnce(signInError);
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      let caughtError: Error | undefined;
+      await act(async () => {
+        try {
+          await result.current.signIn({
+            email: 'user@example.com',
+            password: 'WrongPassword',
+          });
+        } catch (error) {
+          caughtError = error as Error;
+        }
+      });
+
+      expect(caughtError?.message).toBe('Incorrect password');
+      expect(result.current.error).toBe('Incorrect password');
+      expect(result.current.isAuthenticated).toBe(false);
+    });
+
+    it('should set loading state during signIn', async () => {
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      act(() => {
+        result.current.signIn({
+          email: 'test@example.com',
+          password: 'TestPassword123!',
+        });
+      });
+
+      expect(result.current.isLoading).toBe(true);
+    });
+  });
+
+  describe('confirmSignUp', () => {
+    it('should call confirmSignUp on auth service', async () => {
+      const confirmSpy = jest.spyOn(mockAuthService, 'confirmSignUp');
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      await act(async () => {
+        const confirmResult = await result.current.confirmSignUp('test@example.com', '123456');
+        expect(confirmResult.isConfirmed).toBe(true);
+      });
+
+      expect(confirmSpy).toHaveBeenCalledWith('test@example.com', '123456');
+    });
+
+    it('should handle confirmSignUp errors', async () => {
+      const confirmError = new AuthenticationError('Invalid code', 'CONFIRM_ERROR');
+      jest.spyOn(mockAuthService, 'confirmSignUp').mockRejectedValueOnce(confirmError);
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      let caughtError: Error | undefined;
+      await act(async () => {
+        try {
+          await result.current.confirmSignUp('test@example.com', 'invalid');
+        } catch (error) {
+          caughtError = error as Error;
+        }
+      });
+
+      expect(caughtError?.message).toBe('Invalid code');
+      expect(result.current.error).toBe('Invalid code');
+    });
+
+    it('should set loading state during confirmSignUp', async () => {
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      act(() => {
+        result.current.confirmSignUp('test@example.com', '123456');
+      });
+
+      expect(result.current.isLoading).toBe(true);
+    });
+  });
+
+  describe('resendConfirmationCode', () => {
+    it('should call resendConfirmationCode on auth service', async () => {
+      const resendSpy = jest.spyOn(mockAuthService, 'resendConfirmationCode');
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      await act(async () => {
+        await result.current.resendConfirmationCode('test@example.com');
+      });
+
+      expect(resendSpy).toHaveBeenCalledWith('test@example.com');
+    });
+
+    it('should handle resendConfirmationCode errors', async () => {
+      const resendError = new AuthenticationError('Limit exceeded', 'RESEND_CODE_ERROR');
+      jest.spyOn(mockAuthService, 'resendConfirmationCode').mockRejectedValueOnce(resendError);
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      let caughtError: Error | undefined;
+      await act(async () => {
+        try {
+          await result.current.resendConfirmationCode('test@example.com');
+        } catch (error) {
+          caughtError = error as Error;
+        }
+      });
+
+      expect(caughtError?.message).toBe('Limit exceeded');
+      expect(result.current.error).toBe('Limit exceeded');
+    });
+
+    it('should set loading state during resendConfirmationCode', async () => {
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      act(() => {
+        result.current.resendConfirmationCode('test@example.com');
+      });
+
+      expect(result.current.isLoading).toBe(true);
+    });
+  });
+
   describe('state management', () => {
     it('should maintain state across multiple operations', async () => {
       const mockUser: User = {
@@ -323,6 +608,30 @@ describe('useAuth Hook', () => {
       // Verify initial state
       expect(result.current.user).toEqual(mockUser);
       expect(result.current.isLoading).toBe(false);
+    });
+
+    it('should update state correctly after signIn', async () => {
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.isLoading).toBe(false);
+      });
+
+      // Initially not authenticated
+      expect(result.current.isAuthenticated).toBe(false);
+
+      // Sign in
+      await act(async () => {
+        await result.current.signIn({
+          email: 'test@example.com',
+          password: 'TestPassword123!',
+        });
+      });
+
+      // Should be authenticated now
+      expect(result.current.isAuthenticated).toBe(true);
+      expect(result.current.user?.email).toBe('test@example.com');
+      expect(result.current.user?.provider).toBe('cognito');
     });
   });
 });

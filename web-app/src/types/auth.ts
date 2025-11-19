@@ -6,7 +6,39 @@
 /**
  * Supported identity providers
  */
-export type IdentityProvider = 'google' | 'microsoft';
+export type IdentityProvider = 'google' | 'microsoft' | 'cognito';
+
+/**
+ * Sign up credentials for native Cognito authentication
+ */
+export interface SignUpCredentials {
+  email: string;
+  password: string;
+  name?: string;
+}
+
+/**
+ * Sign in credentials for native Cognito authentication
+ */
+export interface SignInCredentials {
+  email: string;
+  password: string;
+}
+
+/**
+ * Sign up result
+ */
+export interface SignUpResult {
+  isConfirmed: boolean;
+  userId?: string;
+}
+
+/**
+ * Confirmation result
+ */
+export interface ConfirmSignUpResult {
+  isConfirmed: boolean;
+}
 
 /**
  * User information from authentication

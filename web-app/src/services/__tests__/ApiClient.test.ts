@@ -42,6 +42,10 @@ describe('ApiClient', () => {
       isAuthenticated: jest.fn(),
       refreshToken: jest.fn(),
       getCurrentUser: jest.fn(),
+      signUp: jest.fn(),
+      signIn: jest.fn(),
+      confirmSignUp: jest.fn(),
+      resendConfirmationCode: jest.fn(),
     };
 
     // Create mock axios instance (it's also callable for retries)

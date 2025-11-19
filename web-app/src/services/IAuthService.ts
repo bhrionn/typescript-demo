@@ -4,7 +4,14 @@
  * (Interface Segregation Principle - focused interface for auth operations)
  */
 
-import { IdentityProvider, User } from '../types/auth';
+import {
+  IdentityProvider,
+  User,
+  SignUpCredentials,
+  SignInCredentials,
+  SignUpResult,
+  ConfirmSignUpResult,
+} from '../types/auth';
 
 /**
  * Interface for authentication service operations
@@ -48,4 +55,35 @@ export interface IAuthService {
    * @returns The user object or null if not authenticated
    */
   getCurrentUser(): Promise<User | null>;
+
+  /**
+   * Signs up a new user with email and password
+   * @param credentials - The sign up credentials
+   * @returns Sign up result with confirmation status
+   * @throws AuthenticationError if sign up fails
+   */
+  signUp(credentials: SignUpCredentials): Promise<SignUpResult>;
+
+  /**
+   * Signs in a user with email and password
+   * @param credentials - The sign in credentials
+   * @throws AuthenticationError if sign in fails
+   */
+  signIn(credentials: SignInCredentials): Promise<void>;
+
+  /**
+   * Confirms a user's sign up with verification code
+   * @param email - The user's email
+   * @param code - The confirmation code
+   * @returns Confirmation result
+   * @throws AuthenticationError if confirmation fails
+   */
+  confirmSignUp(email: string, code: string): Promise<ConfirmSignUpResult>;
+
+  /**
+   * Resends the confirmation code to user's email
+   * @param email - The user's email
+   * @throws AuthenticationError if resend fails
+   */
+  resendConfirmationCode(email: string): Promise<void>;
 }
