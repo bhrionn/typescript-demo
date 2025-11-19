@@ -29,10 +29,14 @@ CREATE TABLE IF NOT EXISTS files (
 );
 
 -- Create indexes for better query performance
-CREATE INDEX IF NOT EXISTS idx_files_user_id ON files(user_id);
-CREATE INDEX IF NOT EXISTS idx_files_uploaded_at ON files(uploaded_at);
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_provider ON users(provider, provider_id);
+CREATE INDEX IF NOT EXISTS idx_users_created_at ON users(created_at);
+CREATE INDEX IF NOT EXISTS idx_files_user_id ON files(user_id);
+CREATE INDEX IF NOT EXISTS idx_files_uploaded_at ON files(uploaded_at);
+CREATE INDEX IF NOT EXISTS idx_files_s3_key ON files(s3_key);
+CREATE INDEX IF NOT EXISTS idx_files_mime_type ON files(mime_type);
+CREATE INDEX IF NOT EXISTS idx_files_metadata ON files USING GIN (metadata);
 
 -- Insert sample data for local testing
 INSERT INTO users (id, email, provider, provider_id, created_at, last_login_at)

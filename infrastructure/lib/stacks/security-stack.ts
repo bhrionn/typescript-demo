@@ -33,9 +33,13 @@ export class SecurityStack extends BaseStack {
   public readonly publicSubnetNacl: ec2.NetworkAcl;
   public readonly appSubnetNacl: ec2.NetworkAcl;
   public readonly databaseSubnetNacl: ec2.NetworkAcl;
+  private readonly privateAppSubnets: ec2.ISubnet[];
 
   constructor(scope: Construct, id: string, props: ISecurityStackProps) {
     super(scope, id, props);
+
+    // Store subnet references for use in NACL rules
+    this.privateAppSubnets = props.privateAppSubnets;
 
     // Create Network ACLs
     this.publicSubnetNacl = this.createPublicSubnetNacl(props.vpc, props.publicSubnets);
@@ -187,56 +191,42 @@ export class SecurityStack extends BaseStack {
     });
 
     // Inbound rules
-    // Allow PostgreSQL from application subnets (10.0.10.0/24 and 10.0.11.0/24)
-    nacl.addEntry('AllowPostgresFromApp1', {
-      cidr: ec2.AclCidr.ipv4('10.0.10.0/24'),
-      ruleNumber: 100,
-      traffic: ec2.AclTraffic.tcpPort(5432),
-      direction: ec2.TrafficDirection.INGRESS,
-      ruleAction: ec2.Action.ALLOW,
-    });
+    // Allow PostgreSQL from application subnets dynamically
+    this.privateAppSubnets.forEach((appSubnet, index) => {
+      // Get the CIDR block from the subnet
+      const subnetCidr = appSubnet.ipv4CidrBlock;
 
-    nacl.addEntry('AllowPostgresFromApp2', {
-      cidr: ec2.AclCidr.ipv4('10.0.11.0/24'),
-      ruleNumber: 110,
-      traffic: ec2.AclTraffic.tcpPort(5432),
-      direction: ec2.TrafficDirection.INGRESS,
-      ruleAction: ec2.Action.ALLOW,
-    });
+      // Allow PostgreSQL ingress from this app subnet
+      nacl.addEntry(`AllowPostgresFromApp${index + 1}`, {
+        cidr: ec2.AclCidr.ipv4(subnetCidr),
+        ruleNumber: 100 + index * 10,
+        traffic: ec2.AclTraffic.tcpPort(5432),
+        direction: ec2.TrafficDirection.INGRESS,
+        ruleAction: ec2.Action.ALLOW,
+      });
 
-    // Allow ephemeral ports for return traffic to application tier
-    nacl.addEntry('AllowEphemeralToApp1', {
-      cidr: ec2.AclCidr.ipv4('10.0.10.0/24'),
-      ruleNumber: 120,
-      traffic: ec2.AclTraffic.tcpPortRange(1024, 65535),
-      direction: ec2.TrafficDirection.INGRESS,
-      ruleAction: ec2.Action.ALLOW,
-    });
-
-    nacl.addEntry('AllowEphemeralToApp2', {
-      cidr: ec2.AclCidr.ipv4('10.0.11.0/24'),
-      ruleNumber: 130,
-      traffic: ec2.AclTraffic.tcpPortRange(1024, 65535),
-      direction: ec2.TrafficDirection.INGRESS,
-      ruleAction: ec2.Action.ALLOW,
+      // Allow ephemeral ports for return traffic to this app subnet
+      nacl.addEntry(`AllowEphemeralToApp${index + 1}`, {
+        cidr: ec2.AclCidr.ipv4(subnetCidr),
+        ruleNumber: 120 + index * 10,
+        traffic: ec2.AclTraffic.tcpPortRange(1024, 65535),
+        direction: ec2.TrafficDirection.INGRESS,
+        ruleAction: ec2.Action.ALLOW,
+      });
     });
 
     // Outbound rules
-    // Allow PostgreSQL responses to application subnets
-    nacl.addEntry('AllowPostgresToApp1', {
-      cidr: ec2.AclCidr.ipv4('10.0.10.0/24'),
-      ruleNumber: 100,
-      traffic: ec2.AclTraffic.tcpPortRange(1024, 65535),
-      direction: ec2.TrafficDirection.EGRESS,
-      ruleAction: ec2.Action.ALLOW,
-    });
+    // Allow PostgreSQL responses to application subnets dynamically
+    this.privateAppSubnets.forEach((appSubnet, index) => {
+      const subnetCidr = appSubnet.ipv4CidrBlock;
 
-    nacl.addEntry('AllowPostgresToApp2', {
-      cidr: ec2.AclCidr.ipv4('10.0.11.0/24'),
-      ruleNumber: 110,
-      traffic: ec2.AclTraffic.tcpPortRange(1024, 65535),
-      direction: ec2.TrafficDirection.EGRESS,
-      ruleAction: ec2.Action.ALLOW,
+      nacl.addEntry(`AllowPostgresToApp${index + 1}`, {
+        cidr: ec2.AclCidr.ipv4(subnetCidr),
+        ruleNumber: 100 + index * 10,
+        traffic: ec2.AclTraffic.tcpPortRange(1024, 65535),
+        direction: ec2.TrafficDirection.EGRESS,
+        ruleAction: ec2.Action.ALLOW,
+      });
     });
 
     cdk.Tags.of(nacl).add('Name', this.getResourceName('nacl', 'database'));
@@ -258,14 +248,15 @@ export class SecurityStack extends BaseStack {
       allowAllOutbound: false, // We'll add specific egress rules
     });
 
-    // Allow HTTPS egress for AWS service endpoints (S3, Secrets Manager)
+    // Allow HTTPS egress to VPC endpoints for AWS services (S3, Secrets Manager)
+    // This restricts egress to VPC CIDR only, preventing unrestricted internet access
     sg.addEgressRule(
-      ec2.Peer.anyIpv4(),
+      ec2.Peer.ipv4(this.config.vpcCidr),
       ec2.Port.tcp(443),
-      'Allow HTTPS egress to AWS services (S3, Secrets Manager)'
+      'Allow HTTPS egress to VPC endpoints for AWS services (S3, Secrets Manager)'
     );
 
-    // Allow PostgreSQL egress to RDS (will be refined when RDS SG is created)
+    // Allow PostgreSQL egress to RDS
     sg.addEgressRule(
       ec2.Peer.ipv4(this.config.vpcCidr),
       ec2.Port.tcp(5432),
