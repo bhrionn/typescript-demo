@@ -9,6 +9,7 @@
 
 import { APIGatewayResponse } from '../types/api';
 import { AppError } from '../types/errors';
+import { createLogger } from './logging';
 
 /**
  * Lambda handler type that may throw errors
@@ -18,9 +19,19 @@ export type ErrorHandlerWrappedHandler = (...args: any[]) => Promise<APIGatewayR
 /**
  * Format error response with proper structure
  */
-function formatErrorResponse(error: Error): APIGatewayResponse {
+function formatErrorResponse(error: Error, requestId?: string): APIGatewayResponse {
+  const logger = createLogger({ requestId });
+
   // Handle known AppError types
   if (error instanceof AppError) {
+    logger.error('Application error occurred', {
+      errorType: error.name,
+      errorCode: error.code,
+      statusCode: error.statusCode,
+      message: error.message,
+      details: error.details,
+    });
+
     return {
       statusCode: error.statusCode,
       headers: {
@@ -32,7 +43,11 @@ function formatErrorResponse(error: Error): APIGatewayResponse {
   }
 
   // Handle unexpected errors - don't expose internal details
-  console.error('Unexpected error:', error);
+  logger.error('Unexpected error occurred', {
+    errorType: error.name,
+    message: error.message,
+    stack: error.stack,
+  });
 
   return {
     statusCode: 500,
@@ -67,7 +82,10 @@ export function withErrorHandler(handler: ErrorHandlerWrappedHandler): ErrorHand
     try {
       return await handler(...args);
     } catch (error) {
-      return formatErrorResponse(error as Error);
+      // Try to extract requestId from the first argument (event)
+      const event = args[0];
+      const requestId = event?.requestContext?.requestId;
+      return formatErrorResponse(error as Error, requestId);
     }
   };
 }
